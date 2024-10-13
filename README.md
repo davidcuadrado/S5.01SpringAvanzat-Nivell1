@@ -9,3 +9,10 @@
 
 Reactive Streams Specification for the JVM
 > https://github.com/reactive-streams/reactive-streams-jvm
+
+
+Reactor Class Flux<T> API
+> https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Flux.html
+
+
+
