@@ -6,5 +6,6 @@ import cat.itacademy.s05.t01.n01.model.Player;
 
 @Repository
 public interface PlayerRepository extends JpaRepository<Player, Integer> {
+	
 
 }
