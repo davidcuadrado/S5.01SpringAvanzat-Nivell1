@@ -1,5 +1,6 @@
 package cat.itacademy.s05.t01.n01.services;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -7,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import cat.itacademy.s05.t01.n01.model.Game;
 import cat.itacademy.s05.t01.n01.model.Player;
 import cat.itacademy.s05.t01.n01.repositories.GameRepository;
+import reactor.core.publisher.Mono;
 
 @Service
 public class GameService {
@@ -23,8 +25,16 @@ public class GameService {
 		
 	}
 	
-	private String generateGameId(String playerId) {
+	private String generateGameId(int playerId) {
 		return playerId + "-" + System.currentTimeMillis();
+	}
+	
+	
+	@Transactional(readOnly = true)
+	public Mono<Game> getGameById(String gameId) {
+		return Mono.justOrEmpty(gameRepository.findById(gameId))
+				.switchIfEmpty(Mono.error(new IllegalArgumentException("Game ID: " + gameId + " not found.")));
+		
 	}
 	
 

@@ -1,5 +1,6 @@
 package cat.itacademy.s05.t01.n01.controllers;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import cat.itacademy.s05.t01.n01.model.Game;
 import cat.itacademy.s05.t01.n01.model.Player;
 import cat.itacademy.s05.t01.n01.services.GameService;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -35,10 +35,11 @@ public class GameController {
 		});
 	}
 	
+
 	@GetMapping("/{id}")
-	public Flux<ResponseEntity<Game>> getGameDetails(@PathVariable String id){
-		Game newGame
-		return ResponseEntity.status(HttpStatus.CREATED).body(newGame);
+	public Mono<ResponseEntity<Game>> getGameDetails(@PathVariable String id) {
+		return gameService.getGameById(id).map(game -> ResponseEntity.status(HttpStatus.OK).body(game))
+				.onErrorResume(IllegalArgumentException.class, e -> Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)));
 	}
 
 }

@@ -12,7 +12,7 @@ import lombok.Setter;
 public class Player {
 	
 	@Id
-	private String playerId;
+	private int playerId;
 	private String playerName;
 	private int playerMaxPoints;
 	
@@ -25,11 +25,11 @@ public class Player {
 		this.playerName = playerName;
 	}
 
-	public String getPlayerId() {
+	public int getPlayerId() {
 		return playerId;
 	}
 
-	public void setPlayerId(String playerId) {
+	public void setPlayerId(int playerId) {
 		this.playerId = playerId;
 	}
 

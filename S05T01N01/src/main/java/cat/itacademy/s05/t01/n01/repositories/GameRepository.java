@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import cat.itacademy.s05.t01.n01.model.Game;
 
 @Repository
-public interface GameRepository extends MongoRepository<Game, Integer>{
+public interface GameRepository extends MongoRepository<Game, String>{
 
 }
