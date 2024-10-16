@@ -1,6 +1,5 @@
 package cat.itacademy.s05.t01.n01.controllers;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,12 +33,13 @@ public class GameController {
 			return ResponseEntity.status(HttpStatus.CREATED).body(newGame);
 		});
 	}
-	
 
+	
+	
 	@GetMapping("/{id}")
 	public Mono<ResponseEntity<Game>> getGameDetails(@PathVariable String id) {
-		return gameService.getGameById(id).map(game -> ResponseEntity.status(HttpStatus.OK).body(game))
-				.onErrorResume(IllegalArgumentException.class, e -> Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)));
+		return gameService.getGameById(id).map(game -> ResponseEntity.status(HttpStatus.OK).body(game)).onErrorResume(
+				IllegalArgumentException.class, e -> Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)));
 	}
 
 }
