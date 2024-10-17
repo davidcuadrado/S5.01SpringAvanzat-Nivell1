@@ -6,5 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/ranking")
 public class RankingController {
+	
+	
 
 }
