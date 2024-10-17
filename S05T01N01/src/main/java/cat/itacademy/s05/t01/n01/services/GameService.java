@@ -19,6 +19,7 @@ public class GameService {
 
 	@Transactional
 	public Mono<Game> createNewGame(Player player) {
+		
 		String gameId = generateGameId(player.getPlayerId());
 
 		Game newGame = new Game(player.getPlayerName(), gameId);
