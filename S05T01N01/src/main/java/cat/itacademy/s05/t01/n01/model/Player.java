@@ -10,22 +10,21 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class Player {
-	
+
 	@Id
 	private int playerId;
 	private String playerName;
 	private int playerMaxPoints;
 	private Hand hand;
-	
+	private int gamesPlayed;
+
 	// revisar constructor con APIs reactivas
-	
+
 	public Player(String playerName) {
-        this.playerName = playerName;
-        this.hand = new Hand();
-    }
-	
-	
-	
+		this.playerName = playerName;
+		this.setGamesPlayed(0);
+		this.hand = new Hand();
+	}
 
 	public String getPlayerName() {
 		return playerName;
@@ -50,32 +49,36 @@ public class Player {
 	public void setPlayerMaxPoints(int playerMaxPoints) {
 		this.playerMaxPoints = playerMaxPoints;
 	}
-	
-	
+
+	public int getGamesPlayed() {
+		return gamesPlayed;
+	}
+
+	public void setGamesPlayed(int gamesPlayed) {
+		this.gamesPlayed = gamesPlayed;
+	}
+
 	// revisar reactividad métodos -> llevar la funcionalidad a Services
-	
+
 	public void receiveCard(Card card) {
-        hand.addCard(card);
-    }
+		hand.addCard(card);
+	}
 
-    public int getScore() {
-        return hand.getScore();
-    }
+	public int getScore() {
+		return hand.getScore();
+	}
 
-    public boolean isBlackjack() {
-        return hand.isBlackjack();
-    }
+	public boolean isBlackjack() {
+		return hand.isBlackjack();
+	}
 
-    public boolean isBust() {
-        return hand.isBust();
-    }
+	public boolean isBust() {
+		return hand.isBust();
+	}
 
-    public Hand getHand() {
-        return hand;
-    }
-	
-	
+	public Hand getHand() {
+		this.setGamesPlayed(this.getGamesPlayed() + 1);
+		return hand;
+	}
 
-	
-	
 }
