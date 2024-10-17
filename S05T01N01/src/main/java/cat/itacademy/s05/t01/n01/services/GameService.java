@@ -33,8 +33,8 @@ public class GameService {
 	
 	
 	@Transactional(readOnly = true)
-	public Mono<Mono<Game>> getGameById(String gameId) {
-		return Mono.justOrEmpty(gameRepository.findById(gameId))
+	public Mono<Game> getGameById(String gameId) {
+		return gameRepository.findById(gameId)
 				.switchIfEmpty(Mono.error(new IllegalArgumentException("Game ID: " + gameId + " not found.")));
 		
 	}

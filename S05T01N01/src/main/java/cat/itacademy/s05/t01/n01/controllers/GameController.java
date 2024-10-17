@@ -1,5 +1,7 @@
 package cat.itacademy.s05.t01.n01.controllers;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +38,8 @@ public class GameController {
 	@GetMapping("/{id}")
 	public Mono<ResponseEntity<Game>> getGameDetails(@PathVariable("id") String gameId) {
 	    return gameService.getGameById(gameId)
-	            .map(game -> ResponseEntity.status(HttpStatus.OK).body(game))
-	            .defaultIfEmpty(ResponseEntity.status(HttpStatus.NOT_FOUND).body("Game not found"))); 
+	            .map(game -> ResponseEntity.status(HttpStatus.OK).body(game)
+	           ); 
 	}
 	
 	
