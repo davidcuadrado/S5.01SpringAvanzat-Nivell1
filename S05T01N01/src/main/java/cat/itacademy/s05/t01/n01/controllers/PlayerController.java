@@ -12,7 +12,7 @@ import cat.itacademy.s05.t01.n01.services.PlayerService;
 import reactor.core.publisher.Flux;
 
 @RestController
-@RequestMapping("/ranking")
+@RequestMapping("/player")
 public class PlayerController {
 
 	@Autowired
