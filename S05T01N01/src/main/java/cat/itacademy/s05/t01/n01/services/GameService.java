@@ -19,11 +19,7 @@ public class GameService {
 
 	@Transactional
 	public Mono<Game> createNewGame(Player player) {
-		
-		String gameId = generateGameId(player.getPlayerId());
-
-		Game newGame = new Game(player.getPlayerName(), gameId);
-		return gameRepository.save(newGame);
+		return gameRepository.save(new Game(player.getPlayerName(), generateGameId(player.getPlayerId())));
 
 	}
 
@@ -41,6 +37,7 @@ public class GameService {
 	@Transactional
 	public Mono<Game> nextPlayType(String gameId, String playType, int bid) {
 		// PLACEHOLDER
+		// pending developtment
 		Optional<Game> game = Optional.empty();
 
 		return Mono.justOrEmpty(game)
@@ -51,7 +48,8 @@ public class GameService {
 	@Transactional
 	public Mono<Game> deleteGameById(String gameId) {
 		return gameRepository.findById(gameId)
-				.flatMap(existingGame -> gameRepository.delete(existingGame).then(Mono.just(existingGame)));
+				.flatMap(existingGame -> gameRepository.delete(existingGame).then(Mono.just(existingGame)))
+				.switchIfEmpty(Mono.error(new IllegalArgumentException("Game ID: " + gameId + " not found.")));
 
 	}
 

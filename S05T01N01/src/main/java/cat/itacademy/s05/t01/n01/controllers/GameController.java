@@ -43,9 +43,9 @@ public class GameController {
 	@PostMapping("/{id}/play")
 	public Mono<ResponseEntity<Game>> makePlay(@PathVariable String gameId, String playType, int bid) {
 		// PLACERHOLDER
+		// pending development
 		return gameService.nextPlayType(gameId, playType, bid)
 				.map(game -> ResponseEntity.status(HttpStatus.OK).body(game));
-		// desarrollar
 	}
 
 	@DeleteMapping
