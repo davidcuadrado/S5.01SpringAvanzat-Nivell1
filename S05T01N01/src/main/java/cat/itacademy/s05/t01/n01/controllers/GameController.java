@@ -1,6 +1,5 @@
 package cat.itacademy.s05.t01.n01.controllers;
 
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,8 +31,6 @@ public class GameController {
 	            .map(newGame -> ResponseEntity.status(HttpStatus.CREATED).body(newGame));
 	}
 	
-	
-	
 
 	@GetMapping("/{id}")
 	public Mono<ResponseEntity<Game>> getGameDetails(@PathVariable("id") String gameId) {
@@ -42,13 +39,6 @@ public class GameController {
 	           ); 
 	}
 	
-	
-	
-	/*
-	public Mono<ResponseEntity<Game>> getGameDetails(@PathVariable String gameId) {
-		return gameService.getGameById(gameId).map(game -> ResponseEntity.status(HttpStatus.OK).body(game));
-	}
-	*/
 
 	@PostMapping("/{id}/play")
 	public Mono<ResponseEntity<Game>> makePlay(@PathVariable String gameId, String playType, int bid) {
@@ -65,5 +55,15 @@ public class GameController {
 				.defaultIfEmpty(ResponseEntity.status(HttpStatus.NOT_FOUND).body("Game " + gameId + " not found. "));
 
 	}
+	
+	/*
+	@GetMapping("/ranking")
+	public Mono<ResponseEntity<Player>> getRanking(){
+		return playerService.getPlayerList
+	}
+	*/
 
+	
+	
+	
 }
