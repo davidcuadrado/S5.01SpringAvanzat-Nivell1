@@ -26,16 +26,27 @@ public class GameController {
 
 	@PostMapping("/new")
 	public Mono<ResponseEntity<Game>> createNewGame(@RequestBody Mono<Player> playerMono) {
-		return playerMono.map(player -> {
-			Game newGame = gameService.createNewGame(player);
-			return ResponseEntity.status(HttpStatus.CREATED).body(newGame);
-		});
+	    return playerMono.flatMap(player -> gameService.createNewGame(player))
+	            .map(newGame -> ResponseEntity.status(HttpStatus.CREATED).body(newGame));
 	}
+	
+	
+	
 
 	@GetMapping("/{id}")
+	public Mono<ResponseEntity<Game>> getGameDetails(@PathVariable("id") String gameId) {
+	    return gameService.getGameById(gameId)
+	            .map(game -> ResponseEntity.status(HttpStatus.OK).body(game))
+	            .defaultIfEmpty(ResponseEntity.status(HttpStatus.NOT_FOUND).body("Game not found"))); 
+	}
+	
+	
+	
+	/*
 	public Mono<ResponseEntity<Game>> getGameDetails(@PathVariable String gameId) {
 		return gameService.getGameById(gameId).map(game -> ResponseEntity.status(HttpStatus.OK).body(game));
 	}
+	*/
 
 	@PostMapping("/{id}/play")
 	public Mono<ResponseEntity<Game>> makePlay(@PathVariable String gameId, String playType, int bid) {
@@ -47,8 +58,9 @@ public class GameController {
 
 	@DeleteMapping
 	public Mono<ResponseEntity<String>> deleteGame(@PathVariable String gameId) {
-		return gameService.deleteGameById(gameId).map(
-				game -> ResponseEntity.status(HttpStatus.NO_CONTENT).body("Game " + gameId + " deleted succesfully"));
+		return gameService.deleteGameById(gameId)
+				.map(deleteGame -> ResponseEntity.status(HttpStatus.NO_CONTENT).body("Game " + gameId + " deleted succesfully"))
+				.defaultIfEmpty(ResponseEntity.status(HttpStatus.NOT_FOUND).body("Game " + gameId + " not found. "));
 
 	}
 
