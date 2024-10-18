@@ -56,12 +56,6 @@ public class GameController {
 
 	}
 	
-	/*
-	@GetMapping("/ranking")
-	public Mono<ResponseEntity<Player>> getRanking(){
-		return playerService.getPlayerList
-	}
-	*/
 
 	
 	
