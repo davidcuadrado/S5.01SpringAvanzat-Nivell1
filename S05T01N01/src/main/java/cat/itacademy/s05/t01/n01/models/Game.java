@@ -1,4 +1,4 @@
-package cat.itacademy.s05.t01.n01.model;
+package cat.itacademy.s05.t01.n01.models;
 
 import org.springframework.data.annotation.Id;
 

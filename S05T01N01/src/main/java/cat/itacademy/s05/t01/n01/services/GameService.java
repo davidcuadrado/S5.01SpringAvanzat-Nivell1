@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import cat.itacademy.s05.t01.n01.model.Game;
-import cat.itacademy.s05.t01.n01.model.Player;
+import cat.itacademy.s05.t01.n01.models.Game;
+import cat.itacademy.s05.t01.n01.models.Player;
 import cat.itacademy.s05.t01.n01.repositories.GameRepository;
 import reactor.core.publisher.Mono;
 
