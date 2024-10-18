@@ -11,25 +11,28 @@ public class Game {
 	
 	@Id
 	private String gameId;
-	private String playerName;
+	private Deck deck;
+    private Player player;
+    private Player dealer;
 	
 	
 	
-	public Game(String gameId, String playerName) {
-        this.setPlayerName(playerName);
-        this.gameId = gameId;
+    public Game(String playerName) {
+        this.deck = new Deck();
+        this.player = new Player(playerName);
+        this.dealer = new Player("Dealer");
     }
 
+    public Deck getDeck() {
+        return deck;
+    }
 
+    public Player getPlayer() {
+        return player;
+    }
 
-	public String getPlayerName() {
-		return playerName;
-	}
-
-
-
-	public void setPlayerName(String playerName) {
-		this.playerName = playerName;
-	}
+    public Player getDealer() {
+        return dealer;
+    }
 	
 }

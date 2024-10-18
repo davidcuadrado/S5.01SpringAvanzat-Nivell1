@@ -16,6 +16,12 @@ public class GameService {
 
 	@Autowired
 	private GameRepository gameRepository;
+	private final Game game;
+	
+	public GameService(Game game){
+		this.game = game;
+	}
+	
 
 	public Mono<Game> createNewGame(Player player) {
 		return gameRepository.save(new Game(player.getPlayerName(), generateGameId(player.getPlayerId())));
@@ -48,5 +54,48 @@ public class GameService {
 				.switchIfEmpty(Mono.error(new IllegalArgumentException("Game ID: " + gameId + " not found.")));
 
 	}
+	
+	public Mono<Void> dealInitialCards() {
+        return Mono.fromRunnable(() -> {
+            game.getPlayer().receiveCard(game.getDeck().drawCard());
+            game.getPlayer().receiveCard(game.getDeck().drawCard());
+            game.getDealer().receiveCard(game.getDeck().drawCard());
+        });
+    }
+
+    public Mono<String> playerTurn() {
+        return Mono.fromCallable(() -> {
+            if (game.getPlayer().isBlackjack()) {
+                return "Blackjack!";
+            } else if (game.getPlayer().isBust()) {
+                return "Bust!";
+            }
+            return "Your turn";
+        });
+    }
+
+    public Mono<Void> dealerTurn() {
+        return Mono.fromRunnable(() -> {
+            while (game.getDealer().getScore() < 17) {
+                game.getDealer().receiveCard(game.getDeck().drawCard());
+            }
+        });
+    }
+
+    public Mono<String> checkWinner() {
+        return Mono.fromCallable(() -> {
+            if (game.getPlayer().isBust()) {
+                return "Dealer wins.";
+            } else if (game.getDealer().isBust()) {
+                return "Player wins.";
+            } else if (game.getPlayer().getScore() > game.getDealer().getScore()) {
+                return "Player wins.";
+            } else if (game.getPlayer().getScore() < game.getDealer().getScore()) {
+                return "Dealer wins.";
+            } else {
+                return "Draw.";
+            }
+        });
+    }
 
 }
