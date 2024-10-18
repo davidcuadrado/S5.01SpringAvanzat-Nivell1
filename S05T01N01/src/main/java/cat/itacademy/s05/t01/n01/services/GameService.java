@@ -36,12 +36,16 @@ public class GameService {
 
 	@Transactional
 	public Mono<Game> nextPlayType(String gameId, String playType, int bid) {
-		// PLACEHOLDER
+		return gameRepository.findById(gameId)
+				.flatMap(game -> {
+					game.setBid(bid);
+					game.setPlayType(playType);
+					return gameRepository.save(game);
+				})
+				.switchIfEmpty(Mono.error(new IllegalArgumentException()));
 		// pending developtment
-		Optional<Game> game = Optional.empty();
-
-		return Mono.justOrEmpty(game)
-				.switchIfEmpty(Mono.error(new IllegalArgumentException("Game ID: " + gameId + " not found.")));
+		
+	
 
 	}
 
