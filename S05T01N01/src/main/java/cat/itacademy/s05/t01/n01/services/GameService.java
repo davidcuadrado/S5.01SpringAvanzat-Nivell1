@@ -17,7 +17,6 @@ public class GameService {
 	@Autowired
 	private GameRepository gameRepository;
 
-	@Transactional
 	public Mono<Game> createNewGame(Player player) {
 		return gameRepository.save(new Game(player.getPlayerName(), generateGameId(player.getPlayerId())));
 
@@ -27,24 +26,18 @@ public class GameService {
 		return playerId + "-" + System.currentTimeMillis();
 	}
 
-	@Transactional(readOnly = true)
 	public Mono<Game> getGameById(String gameId) {
 		return gameRepository.findById(gameId)
 				.switchIfEmpty(Mono.error(new IllegalArgumentException("Game ID: " + gameId + " not found.")));
 
 	}
 
-	@Transactional
 	public Mono<Game> nextPlayType(String gameId, String playType, int bid) {
-		return gameRepository.findById(gameId)
-				.flatMap(game -> {
-					game.setBid(bid);
-					game.setPlayType(playType);
-					return gameRepository.save(game);
-				})
-				.switchIfEmpty(Mono.error(new IllegalArgumentException()));
-		
-	
+		return gameRepository.findById(gameId).flatMap(game -> {
+			game.setBid(bid);
+			game.setPlayType(playType);
+			return gameRepository.save(game);
+		}).switchIfEmpty(Mono.error(new IllegalArgumentException("Game ID: " + gameId + " not found.")));
 
 	}
 
