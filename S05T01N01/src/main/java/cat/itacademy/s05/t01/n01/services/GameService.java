@@ -24,7 +24,7 @@ public class GameService {
 	
 
 	public Mono<Game> createNewGame(Player player) {
-		return gameRepository.save(new Game(player.getPlayerName(), generateGameId(player.getPlayerId())));
+		return gameRepository.save(new Game(player.getPlayerName()));
 
 	}
 
@@ -40,7 +40,7 @@ public class GameService {
 
 	public Mono<Game> nextPlayType(String gameId, String playType, int bid) {
 		return gameRepository.findById(gameId).flatMap(game -> {
-			game.setBid(bid);
+			game.setCurrentBid(bid);
 			game.setPlayType(playType);
 			return gameRepository.save(game);
 		}).switchIfEmpty(Mono.error(new IllegalArgumentException("Game ID: " + gameId + " not found.")));
