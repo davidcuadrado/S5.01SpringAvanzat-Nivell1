@@ -4,45 +4,44 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Hand {
-    private List<Card> cards;
+	private List<Card> cards;
 
-    public Hand() {
-        this.cards = new ArrayList<>();
-    }
+	public Hand() {
+		this.cards = new ArrayList<>();
+	}
 
-    public void addCard(Card card) {
-        cards.add(card);
-    }
+	public void addCard(Card card) {
+		cards.add(card);
+	}
 
-    public int getScore() {
-        int total = 0;
-        int aces = 0;
+	public int getScore() {
+		int total = 0;
+		int aces = 0;
 
-        for (Card card : cards) {
-            total += card.getNumericValue();
-            if ("A".equals(card.getValue())) {
-                aces++;
-            }
-        }
+		for (Card card : cards) {
+			total += card.getNumericValue();
+			if ("A".equals(card.getValue())) {
+				aces++;
+			}
+		}
 
-        // Adjust the value of Aces if necessary
-        while (total > 21 && aces > 0) {
-            total -= 10;
-            aces--;
-        }
+		while (total > 21 && aces > 0) {
+			total -= 10;
+			aces--;
+		}
 
-        return total;
-    }
+		return total;
+	}
 
-    public List<Card> getCards() {
-        return cards;
-    }
+	public List<Card> getCards() {
+		return cards;
+	}
 
-    public boolean isBlackjack() {
-        return getScore() == 21 && cards.size() == 2;
-    }
+	public boolean isBlackjack() {
+		return getScore() == 21 && cards.size() == 2;
+	}
 
-    public boolean isBust() {
-        return getScore() > 21;
-    }
+	public boolean isBust() {
+		return getScore() > 21;
+	}
 }
