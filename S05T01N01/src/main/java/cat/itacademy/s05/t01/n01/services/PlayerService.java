@@ -17,8 +17,7 @@ public class PlayerService {
 
 	public Flux<Player> getAllPlayersByRanking() {
 		return playerRepository.findAll()
-				.sort(Comparator.comparing(Player::getPlayerMaxPoints).thenComparing(Player::getGamesPlayed));
-
+				.sort(Comparator.comparing(Player::getPlayerMaxPointsSync).thenComparing(Player::getGamesPlayedSync));
 	}
 
 	public Mono<Player> changePlayerName(int playerId, String inputPlayerName) {
