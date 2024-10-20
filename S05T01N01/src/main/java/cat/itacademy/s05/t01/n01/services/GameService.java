@@ -2,7 +2,6 @@ package cat.itacademy.s05.t01.n01.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import cat.itacademy.s05.t01.n01.models.Game;
 import cat.itacademy.s05.t01.n01.models.Player;
@@ -21,8 +20,7 @@ public class GameService {
 	}
 
 	public Mono<Game> createNewGame(Player player) {
-		return gameRepository.save(new Game(player.getPlayerName()));
-
+		return player.getPlayerName().flatMap(playerName -> gameRepository.save(new Game(playerName)));
 	}
 
 	public Mono<Game> getGameById(String gameId) {
@@ -39,7 +37,6 @@ public class GameService {
 
 	}
 
-	@Transactional
 	public Mono<Game> deleteGameById(String gameId) {
 		return gameRepository.findById(gameId)
 				.flatMap(existingGame -> gameRepository.delete(existingGame).then(Mono.just(existingGame)))
