@@ -1,12 +1,9 @@
 package cat.itacademy.s05.t01.n01.models;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
+@Document(collection = "game")
 public class Game {
 
 	@Id
@@ -24,6 +21,14 @@ public class Game {
 		this.player = new Player(playerName);
 		this.dealer = new Player("Dealer");
 		this.setInitialBudget(1000);
+	}
+
+	public String getGameId() {
+		return gameId;
+	}
+
+	public void setGameId(String gameId) {
+		this.gameId = gameId;
 	}
 
 	public Deck getDeck() {

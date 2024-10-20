@@ -25,7 +25,7 @@ public class PlayerService {
 
 	public Mono<Player> changePlayerName(int playerId, String inputPlayerName) {
 		return playerRepository.findById(playerId).flatMap(player -> {
-			player.setPlayerName(inputPlayerName);
+			player.setPlayerNameMono(inputPlayerName);
 			return playerRepository.save(player);
 		}).switchIfEmpty(Mono.error(new IllegalArgumentException("Player with ID: " + playerId + " not found")));
 	}

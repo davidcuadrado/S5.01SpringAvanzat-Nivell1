@@ -1,15 +1,11 @@
 package cat.itacademy.s05.t01.n01.models;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import reactor.core.publisher.Mono;
 
-@Getter
-@Setter
-@NoArgsConstructor
+@Table (name = "player")
 public class Player {
 
 	@Id
@@ -18,6 +14,8 @@ public class Player {
 	private int playerMaxPoints;
 	private Hand hand;
 	private int gamesPlayed;
+	
+	public Player() {}
 
 	public Player(String playerName) {
 		this.playerName = playerName;
@@ -25,13 +23,20 @@ public class Player {
 		this.hand = new Hand();
 	}
 	
+	public String getPlayerName() {
+		return this.playerName;
+	}
+	
+	public void setPlayerName(String playerName) {
+		this.playerName = playerName;
+	}
 	
 
-	public Mono<String> getPlayerName() {
+	public Mono<String> getPlayerNameMono() {
 	    return Mono.just(playerName);
 	}
 
-	public Mono<Void> setPlayerName(String playerName) {
+	public Mono<Void> setPlayerNameMono(String playerName) {
 	    return Mono.fromRunnable(() -> this.playerName = playerName);
 	}
 

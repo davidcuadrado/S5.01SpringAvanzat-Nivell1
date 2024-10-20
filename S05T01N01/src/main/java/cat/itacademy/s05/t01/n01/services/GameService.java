@@ -13,10 +13,19 @@ public class GameService {
 
 	@Autowired
 	private GameRepository gameRepository;
-	
+	/*
 	public Mono<Game> createNewGame(Player player) {
         return player.getPlayerName().flatMap(playerName -> gameRepository.save(new Game(playerName)));
     }
+    */
+	
+	public Mono<Game> createNewGame(Player player) {
+	    System.out.println("Player object: " + player);
+	    System.out.println("Player name: " + player.getPlayerName());
+
+	    return gameRepository.save(new Game(player.getPlayerName()))
+	        .doOnError(e -> System.out.println("Error while saving the game: " + e.getMessage()));
+	}
 
 	public Mono<Game> getGameById(String gameId) {
 		return gameRepository.findById(gameId)

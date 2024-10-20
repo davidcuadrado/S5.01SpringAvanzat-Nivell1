@@ -24,17 +24,35 @@ public class GameController {
 	@Autowired
 	private GameService gameService;
 
+	/*
+	 * @PostMapping("/new") public Mono<ResponseEntity<Game>>
+	 * createNewGame(@RequestBody Mono<Player> playerMono) { return
+	 * playerMono.flatMap(player -> gameService.createNewGame(player)) .map(newGame
+	 * -> ResponseEntity.status(HttpStatus.CREATED).body(newGame)) .onErrorResume(e
+	 * -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build())); }
+	 */
+
+	// error test
 	@PostMapping("/new")
-	public Mono<ResponseEntity<Game>> createNewGame(@RequestBody Mono<Player> playerMono) {
-		return playerMono.flatMap(player -> gameService.createNewGame(player))
-				.map(newGame -> ResponseEntity.status(HttpStatus.CREATED).body(newGame))
-				.onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build()));
+	public Mono<ResponseEntity<Game>> createNewGame(@RequestBody Player player) {
+	    return gameService.createNewGame(player)
+	        .map(newGame -> ResponseEntity.status(HttpStatus.CREATED).body(newGame))
+	        .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build()));
 	}
 
+	/*
 	@GetMapping("/{id}")
 	public Mono<ResponseEntity<Game>> getGameDetails(@PathVariable("id") String gameId) {
 		return gameService.getGameById(gameId).map(game -> ResponseEntity.status(HttpStatus.OK).body(game))
 				.onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).build()));
+	}
+	*/
+	
+	@GetMapping("/{id}")
+	public Mono<ResponseEntity<Game>> getGameDetails(@PathVariable("id") String gameId) {
+	    return gameService.getGameById(gameId)
+	            .map(game -> ResponseEntity.status(HttpStatus.OK).body(game))
+	            .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).build()));
 	}
 
 	@PostMapping("/{id}/play")

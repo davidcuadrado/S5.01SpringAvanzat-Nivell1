@@ -4,27 +4,34 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Deck {
-    private ArrayList<Card> cards;
+	private ArrayList<Card> cards;
 
-    public Deck() {
-        cards = new ArrayList<>();
-        String[] suits = {"Hearts", "Diamonds", "Clubs", "Spades"};
-        String[] values = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
+	public Deck() {
+		cards = new ArrayList<>();
+		String[] suits = { "Hearts", "Diamonds", "Clubs", "Spades" };
+		String[] values = { "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" };
 
-        for (String suit : suits) {
-            for (String value : values) {
-                cards.add(new Card(suit, value));
-            }
-        }
-        shuffle();
-    }
+		for (String suit : suits) {
+			for (String value : values) {
+				cards.add(new Card(suit, value));
+			}
+		}
+		shuffle();
+	}
 
-    public void shuffle() {
-        Collections.shuffle(cards);
-    }
+	public ArrayList<Card> getCards() {
+		return cards;
+	}
 
-    public Card drawCard() {
-        return cards.remove(0);
-    }
+	public void setCards(ArrayList<Card> cards) {
+		this.cards = cards;
+	}
+
+	public void shuffle() {
+		Collections.shuffle(cards);
+	}
+
+	public Card drawCard() {
+		return cards.remove(0);
+	}
 }
-
