@@ -24,37 +24,47 @@ public class Player {
 		this.setGamesPlayed(0);
 		this.hand = Mono.just(new Hand());
 	}
+	
+	
 
-	public String getPlayerName() {
-		return playerName;
+	public Mono<String> getPlayerName() {
+	    return Mono.just(playerName);
 	}
 
-	public void setPlayerName(String playerName) {
-		this.playerName = playerName;
+	public Mono<Void> setPlayerName(String playerName) {
+	    return Mono.fromRunnable(() -> this.playerName = playerName);
 	}
 
-	public int getPlayerId() {
-		return playerId;
+	public Mono<Integer> getPlayerId() {
+	    return Mono.just(playerId);
 	}
 
-	public void setPlayerId(int playerId) {
-		this.playerId = playerId;
+	public Mono<Void> setPlayerId(int playerId) {
+	    return Mono.fromRunnable(() -> this.playerId = playerId);
 	}
 
-	public int getPlayerMaxPoints() {
-		return playerMaxPoints;
+	public Mono<Integer> getPlayerMaxPoints() {
+	    return Mono.just(playerMaxPoints);
+	}
+	
+	public Integer getPlayerMaxPointsSync() {
+		return this.playerMaxPoints;
 	}
 
-	public void setPlayerMaxPoints(int playerMaxPoints) {
-		this.playerMaxPoints = playerMaxPoints;
+	public Mono<Void> setPlayerMaxPoints(int playerMaxPoints) {
+	    return Mono.fromRunnable(() -> this.playerMaxPoints = playerMaxPoints);
 	}
 
-	public int getGamesPlayed() {
-		return gamesPlayed;
+	public Mono<Integer> getGamesPlayed() {
+	    return Mono.just(gamesPlayed);
 	}
 
-	public void setGamesPlayed(int gamesPlayed) {
-		this.gamesPlayed = gamesPlayed;
+	public Integer getGamesPlayedSync() {
+		return this.gamesPlayed;
+	}
+	
+	public Mono<Void> setGamesPlayed(int gamesPlayed) {
+	    return Mono.fromRunnable(() -> this.gamesPlayed = gamesPlayed);
 	}
 
     public Mono<Void> receiveCard(Card card) {
@@ -77,8 +87,8 @@ public class Player {
     }
 
     public Mono<Hand> getHand() {
-        this.setGamesPlayed(this.getGamesPlayed() + 1);
-        return this.hand;
+        return this.hand.doOnNext(h -> this.gamesPlayed += 1);
     }
+
 
 }
