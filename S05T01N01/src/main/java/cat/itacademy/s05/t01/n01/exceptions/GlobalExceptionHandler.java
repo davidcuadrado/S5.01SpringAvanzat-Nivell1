@@ -1,4 +1,4 @@
-package cat.itacademy.s05.t01.n01.handlers;
+package cat.itacademy.s05.t01.n01.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
