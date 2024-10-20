@@ -5,7 +5,6 @@ import java.util.Comparator;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import cat.itacademy.s05.t01.n01.models.Card;
-import cat.itacademy.s05.t01.n01.models.Hand;
 import cat.itacademy.s05.t01.n01.models.Player;
 import cat.itacademy.s05.t01.n01.repositories.PlayerRepository;
 import reactor.core.publisher.Flux;
