@@ -15,7 +15,8 @@ import reactor.core.publisher.Mono;
 public class PlayerService {
 
 	@Autowired
-	PlayerRepository playerRepository;
+	private PlayerRepository playerRepository;
+	
 
 	public Flux<Player> getAllPlayersByRanking() {
 		return playerRepository.findAll()

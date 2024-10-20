@@ -16,13 +16,13 @@ public class Player {
 	private int playerId;
 	private String playerName;
 	private int playerMaxPoints;
-	private Mono<Hand> hand;
+	private Hand hand;
 	private int gamesPlayed;
 
 	public Player(String playerName) {
 		this.playerName = playerName;
 		this.setGamesPlayed(0);
-		this.hand = Mono.just(new Hand());
+		this.hand = new Hand();
 	}
 	
 	
@@ -44,7 +44,7 @@ public class Player {
 	}
 
 	public Mono<Integer> getPlayerMaxPoints() {
-	    return Mono.just(playerMaxPoints);
+	    return Mono.just(this.playerMaxPoints);
 	}
 	
 	public Integer getPlayerMaxPointsSync() {
@@ -68,26 +68,23 @@ public class Player {
 	}
 
     public Mono<Void> receiveCard(Card card) {
-        return this.hand.flatMap(hand -> {
-            hand.addCard(card);
-            return Mono.empty();
-        });
+        return this.hand.addCard(card);
     }
 
     public Mono<Integer> getScore() {
-        return this.hand.map(Hand::getScore);
+        return this.hand.getScore();
     }
 
     public Mono<Boolean> isBlackjack() {
-        return this.hand.map(Hand::isBlackjack);
+        return this.hand.isBlackjack();
     }
 
     public Mono<Boolean> isBust() {
-        return this.hand.map(Hand::isBust);
+        return this.hand.isBust();
     }
 
     public Mono<Hand> getHand() {
-        return this.hand.doOnNext(h -> this.gamesPlayed += 1);
+        return Mono.just(this.hand);
     }
 
 
