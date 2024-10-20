@@ -13,15 +13,10 @@ public class GameService {
 
 	@Autowired
 	private GameRepository gameRepository;
-	private final Game game;
-
-	public GameService(Game game) {
-		this.game = game;
-	}
-
+	
 	public Mono<Game> createNewGame(Player player) {
-		return player.getPlayerName().flatMap(playerName -> gameRepository.save(new Game(playerName)));
-	}
+        return player.getPlayerName().flatMap(playerName -> gameRepository.save(new Game(playerName)));
+    }
 
 	public Mono<Game> getGameById(String gameId) {
 		return gameRepository.findById(gameId)
@@ -44,7 +39,7 @@ public class GameService {
 
 	}
 
-	public Mono<Void> dealInitialCards() {
+	public Mono<Void> dealInitialCards(Game game) {
 		return Mono.fromRunnable(() -> {
 			game.getPlayer().receiveCard(game.getDeck().drawCard());
 			game.getPlayer().receiveCard(game.getDeck().drawCard());
@@ -52,7 +47,7 @@ public class GameService {
 		});
 	}
 
-	public Mono<String> playerTurn() {
+	public Mono<String> playerTurn(Game game) {
 		return game.getPlayer().isBlackjack().flatMap(isBlackjack -> {
 			if (isBlackjack) {
 				return Mono.just("Blackjack!");
@@ -66,7 +61,7 @@ public class GameService {
 		});
 	}
 
-	public Mono<Void> dealerTurn() {
+	public Mono<Void> dealerTurn(Game game) {
 		return Mono.defer(() -> game.getDealer().getScore().flatMap(score -> {
 			if (score < 17) {
 				return game.getDealer().receiveCard(game.getDeck().drawCard()).then(Mono.just(score));
@@ -75,7 +70,7 @@ public class GameService {
 		})).repeatWhen(scoreMono -> scoreMono.filter(score -> score < 17)).then();
 	}
 
-	public Mono<String> checkWinner() {
+	public Mono<String> checkWinner(Game game) {
 		return game.getPlayer().isBust().flatMap(isPlayerBust -> {
 			if (isPlayerBust) {
 				return Mono.just("Dealer wins.");

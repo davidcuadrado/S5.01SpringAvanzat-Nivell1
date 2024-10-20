@@ -3,6 +3,7 @@ package cat.itacademy.s05.t01.n01.services;
 import java.util.Comparator;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import cat.itacademy.s05.t01.n01.models.Card;
 import cat.itacademy.s05.t01.n01.models.Player;
@@ -10,10 +11,12 @@ import cat.itacademy.s05.t01.n01.repositories.PlayerRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Service
 public class PlayerService {
 
 	@Autowired
-	PlayerRepository playerRepository;
+	private PlayerRepository playerRepository;
+	
 
 	public Flux<Player> getAllPlayersByRanking() {
 		return playerRepository.findAll()
