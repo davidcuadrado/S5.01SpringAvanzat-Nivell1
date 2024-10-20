@@ -10,18 +10,18 @@ import lombok.Setter;
 public class Game {
 
 	@Id
-	private final String gameId;
+	private String gameId;
 	private Deck deck;
 	private Player player;
 	private Player dealer;
 	private int currentBid;
 	private int initialBudget;
 	private int highestBudget;
+	private int gameRounds;
 
 	public Game(String playerName) {
 		this.deck = new Deck();
 		this.player = new Player(playerName);
-		this.gameId = setGameId(this.player.getPlayerId());
 		this.dealer = new Player("Dealer");
 		this.setInitialBudget(1000);
 	}
@@ -36,10 +36,6 @@ public class Game {
 
 	public Player getDealer() {
 		return dealer;
-	}
-
-	private String setGameId(int playerId) {
-		return playerId + "-" + System.currentTimeMillis();
 	}
 
 	public int getCurrentBid() {
@@ -66,6 +62,14 @@ public class Game {
 		if (currentBudget > highestBudget) {
 			this.highestBudget = currentBudget;
 		}
+	}
+
+	public int getGameRounds() {
+		return gameRounds;
+	}
+
+	public void setGameRounds(int gameRounds) {
+		this.gameRounds = gameRounds;
 	}
 
 }

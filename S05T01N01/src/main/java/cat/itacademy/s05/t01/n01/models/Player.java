@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import reactor.core.publisher.Mono;
 
 @Getter
 @Setter
@@ -15,15 +16,13 @@ public class Player {
 	private int playerId;
 	private String playerName;
 	private int playerMaxPoints;
-	private Hand hand;
+	private Mono<Hand> hand;
 	private int gamesPlayed;
-
-	// revisar constructor con APIs reactivas
 
 	public Player(String playerName) {
 		this.playerName = playerName;
 		this.setGamesPlayed(0);
-		this.hand = new Hand();
+		this.hand = Mono.just(new Hand());
 	}
 
 	public String getPlayerName() {
@@ -58,27 +57,28 @@ public class Player {
 		this.gamesPlayed = gamesPlayed;
 	}
 
-	// revisar reactividad métodos -> llevar la funcionalidad a Services
+    public Mono<Void> receiveCard(Card card) {
+        return this.hand.flatMap(hand -> {
+            hand.addCard(card);
+            return Mono.empty();
+        });
+    }
 
-	public void receiveCard(Card card) {
-		hand.addCard(card);
-	}
+    public Mono<Integer> getScore() {
+        return this.hand.map(Hand::getScore);
+    }
 
-	public int getScore() {
-		return hand.getScore();
-	}
+    public Mono<Boolean> isBlackjack() {
+        return this.hand.map(Hand::isBlackjack);
+    }
 
-	public boolean isBlackjack() {
-		return hand.isBlackjack();
-	}
+    public Mono<Boolean> isBust() {
+        return this.hand.map(Hand::isBust);
+    }
 
-	public boolean isBust() {
-		return hand.isBust();
-	}
-
-	public Hand getHand() {
-		this.setGamesPlayed(this.getGamesPlayed() + 1);
-		return hand;
-	}
+    public Mono<Hand> getHand() {
+        this.setGamesPlayed(this.getGamesPlayed() + 1);
+        return this.hand;
+    }
 
 }

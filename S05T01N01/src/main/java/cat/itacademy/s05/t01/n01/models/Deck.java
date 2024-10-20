@@ -2,10 +2,9 @@ package cat.itacademy.s05.t01.n01.models;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 public class Deck {
-    private List<Card> cards;
+    private ArrayList<Card> cards;
 
     public Deck() {
         cards = new ArrayList<>();
