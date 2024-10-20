@@ -13,7 +13,7 @@ public class GameService {
 
 	@Autowired
 	private GameRepository gameRepository;
-	@Autowired
+	
 	private final Game game;
 
 	public GameService(Game game) {
