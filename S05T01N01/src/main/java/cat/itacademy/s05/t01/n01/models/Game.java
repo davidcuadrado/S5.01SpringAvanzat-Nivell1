@@ -16,9 +16,9 @@ public class Game {
 	private int highestBudget;
 	private int gameRounds;
 
-	public Game(String playerName) {
+	public Game(Player player) {
 		this.deck = new Deck();
-		this.player = new Player(playerName);
+		this.player = new Player(player.getPlayerName());
 		this.dealer = new Player("Dealer");
 		this.setInitialBudget(1000);
 	}

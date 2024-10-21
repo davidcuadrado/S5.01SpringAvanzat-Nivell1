@@ -63,7 +63,7 @@ public class GameController {
 				.onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build()));
 	}
 
-	@DeleteMapping
+	@DeleteMapping("/delete/{id}")
 	public Mono<ResponseEntity<String>> deleteGame(@PathVariable String gameId) {
 		return gameService.deleteGameById(gameId)
 				.map(deleteGame -> ResponseEntity.status(HttpStatus.NO_CONTENT)
