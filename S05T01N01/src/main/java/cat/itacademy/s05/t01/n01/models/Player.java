@@ -1,6 +1,7 @@
 package cat.itacademy.s05.t01.n01.models;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Table;
 
 import reactor.core.publisher.Mono;
@@ -12,6 +13,7 @@ public class Player {
 	private int playerId;
 	private String playerName;
 	private int playerMaxPoints;
+	@Transient
 	private Hand hand;
 	private int gamesPlayed;
 	

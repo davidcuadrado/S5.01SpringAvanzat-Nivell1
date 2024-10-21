@@ -37,7 +37,7 @@ public class GameController {
 	}
 
 	@PostMapping("/{id}/play")
-	public Mono<ResponseEntity<Game>> makePlay(@PathVariable String gameId, @RequestParam String playType,
+	public Mono<ResponseEntity<Game>> makePlay(@PathVariable("id") String gameId, @RequestParam String playType,
 			@RequestParam int bid) {
 		return gameService.nextPlayType(gameId, playType, bid)
 				.map(game -> ResponseEntity.status(HttpStatus.OK).body(game))
