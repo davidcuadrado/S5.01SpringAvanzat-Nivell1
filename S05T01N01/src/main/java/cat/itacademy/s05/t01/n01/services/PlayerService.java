@@ -17,10 +17,15 @@ public class PlayerService {
 	@Autowired
 	private PlayerRepository playerRepository;
 	
+	public Mono<Player> createNewPlayer(Player player) {
+		return playerRepository.save(new Player(player.getPlayerName()))
+				.doOnError(e -> System.out.println("Error while saving the game: " + e.getMessage()));
+	}
+	
 
 	public Flux<Player> getAllPlayersByRanking() {
 		return playerRepository.findAll()
-				.sort(Comparator.comparing(Player::getPlayerMaxPointsSync).thenComparing(Player::getGamesPlayedSync));
+				.sort(Comparator.comparing(Player::getPlayerMaxPointsSync));
 	}
 
 	public Mono<Player> changePlayerName(int playerId, String inputPlayerName) {

@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import cat.itacademy.s05.t01.n01.models.Game;
 import cat.itacademy.s05.t01.n01.models.Player;
 import cat.itacademy.s05.t01.n01.repositories.GameRepository;
-import cat.itacademy.s05.t01.n01.repositories.PlayerRepository;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -14,12 +13,10 @@ public class GameService {
 
 	@Autowired
 	private GameRepository gameRepository;
-	private PlayerRepository playerRepository;
 
 	public Mono<Game> createNewGame(Player player) {
-
-		return playerRepository.save(new Player(player.getPlayerName())).then(gameRepository.save(new Game(player))
-				.doOnError(e -> System.out.println("Error while saving the game: " + e.getMessage())));
+		return gameRepository.save(new Game(player))
+				.doOnError(e -> System.out.println("Error while saving the game: " + e.getMessage()));
 	}
 
 	public Mono<Game> getGameById(String gameId) {
