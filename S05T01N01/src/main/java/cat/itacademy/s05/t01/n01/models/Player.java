@@ -2,16 +2,21 @@ package cat.itacademy.s05.t01.n01.models;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+import lombok.Data;
 import reactor.core.publisher.Mono;
 
+@Data
 @Table(name = "players")
 public class Player {
 
 	@Id
 	private int playerId;
+	@Column("playerName")
 	private String playerName;
+	@Column("playerMaxPoints")
 	private int playerMaxPoints;
 	@Transient
 	private Hand hand;

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import cat.itacademy.s05.t01.n01.models.Game;
 import cat.itacademy.s05.t01.n01.models.Player;
 import cat.itacademy.s05.t01.n01.services.GameService;
+import cat.itacademy.s05.t01.n01.services.PlayerService;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -23,11 +24,15 @@ public class GameController {
 
 	@Autowired
 	private GameService gameService;
+	@Autowired
+	private PlayerService playerService;
 
 	@PostMapping("/new")
-	public Mono<ResponseEntity<Game>> createNewGame(@RequestBody Player player) {
-		return gameService.createNewGame(player).map(newGame -> ResponseEntity.status(HttpStatus.CREATED).body(newGame))
-				.onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build()));
+	public Mono<ResponseEntity<Game>> createNewGame(@RequestBody Player newPlayer) {
+	    return playerService.createNewPlayer(newPlayer.getPlayerName())
+	        .flatMap(player -> gameService.createNewGame(newPlayer))
+	        .map(newGame -> ResponseEntity.status(HttpStatus.CREATED).body(newGame))
+	        .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build()));
 	}
 
 	@GetMapping("/{id}")

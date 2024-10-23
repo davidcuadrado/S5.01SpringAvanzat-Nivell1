@@ -15,7 +15,7 @@ public class GameService {
 	private GameRepository gameRepository;
 
 	public Mono<Game> createNewGame(Player player) {
-		return gameRepository.save(new Game(player))
+		return gameRepository.save(new Game(player.getPlayerName()))
 				.doOnError(e -> System.out.println("Error while saving the game: " + e.getMessage()));
 	}
 
