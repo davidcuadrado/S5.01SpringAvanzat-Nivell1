@@ -1,6 +1,5 @@
 package cat.itacademy.s05.t01.n01.services;
 
-import java.util.Comparator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +24,8 @@ public class PlayerService {
 
 	public Flux<Player> getAllPlayersByRanking() {
 		return playerRepository.findAll()
-				.sort(Comparator.comparing(Player::getPlayerMaxPointsSync));
+				.sort((player1, player2) -> player1.getPlayerMaxPointsSync().compareTo(player2.getPlayerMaxPointsSync()));
+
 	}
 
 	public Mono<Player> changePlayerName(int playerId, String inputPlayerName) {

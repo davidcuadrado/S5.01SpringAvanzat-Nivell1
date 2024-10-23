@@ -16,7 +16,7 @@ public class RankingController {
 	@Autowired
 	PlayerService playerService;
 
-	@GetMapping()
+	@GetMapping("")
 	public Flux<Player> getRanking() {
 		return playerService.getAllPlayersByRanking()
 				.switchIfEmpty(Flux.error(new IllegalArgumentException("No players found in ranking.")));
