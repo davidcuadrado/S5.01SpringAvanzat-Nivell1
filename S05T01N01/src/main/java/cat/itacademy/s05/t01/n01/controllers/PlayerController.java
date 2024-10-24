@@ -21,15 +21,11 @@ public class PlayerController {
 	PlayerService playerService;
 
 	@PutMapping("/{playerId}")
-	public Mono<ResponseEntity<Player>> setNewPlayerName(@PathVariable int playerId,
-			@RequestBody String inputPlayerName) {
-		if (inputPlayerName == null || inputPlayerName.trim().isEmpty()) {
-			Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
-		}
-
-		return playerService.changePlayerName(playerId, inputPlayerName)
-				.map(player -> ResponseEntity.status(HttpStatus.OK).body(player))
+	public Mono<ResponseEntity<Player>> setNewPlayerName(@PathVariable int playerId, @RequestBody Player player) {
+		return playerService.changePlayerName(playerId, player.getPlayerName())
+				.map(updatedPlayer -> ResponseEntity.ok(updatedPlayer))
 				.onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).build()));
+
 	}
 
 }

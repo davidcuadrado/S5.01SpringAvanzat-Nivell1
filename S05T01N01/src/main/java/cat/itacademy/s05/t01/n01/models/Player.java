@@ -1,91 +1,71 @@
 package cat.itacademy.s05.t01.n01.models;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 import reactor.core.publisher.Mono;
 
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
+@Table(name = "players")
 public class Player {
 
 	@Id
+	@Column("playerId")
 	private int playerId;
+	@Column("playerName")
 	private String playerName;
-	private int playerMaxPoints;
-	private Hand hand;
-	private int gamesPlayed;
+	@Column("handId")
+	private int handId;
+
+	public Player() {
+	}
 
 	public Player(String playerName) {
 		this.playerName = playerName;
-		this.setGamesPlayed(0);
-		this.hand = new Hand();
-	}
-	
-	
-
-	public Mono<String> getPlayerName() {
-	    return Mono.just(playerName);
+		this.handId = 0;
 	}
 
-	public Mono<Void> setPlayerName(String playerName) {
-	    return Mono.fromRunnable(() -> this.playerName = playerName);
+	public String getPlayerName() {
+		return this.playerName;
+	}
+
+	public void setPlayerName(String playerName) {
+		this.playerName = playerName;
+	}
+
+	public Mono<String> getPlayerNameMono() {
+		return Mono.just(playerName);
+	}
+
+	public Mono<Void> setPlayerNameMono(String playerName) {
+		return Mono.fromRunnable(() -> this.playerName = playerName);
 	}
 
 	public Mono<Integer> getPlayerId() {
-	    return Mono.just(playerId);
+		return Mono.just(playerId);
 	}
 
 	public Mono<Void> setPlayerId(int playerId) {
-	    return Mono.fromRunnable(() -> this.playerId = playerId);
+		return Mono.fromRunnable(() -> this.playerId = playerId);
 	}
 
 	public Mono<Integer> getPlayerMaxPoints() {
-	    return Mono.just(this.playerMaxPoints);
+		return Mono.just(this.handId);
 	}
-	
+
 	public Integer getPlayerMaxPointsSync() {
-		return this.playerMaxPoints;
+		return this.handId;
 	}
 
 	public Mono<Void> setPlayerMaxPoints(int playerMaxPoints) {
-	    return Mono.fromRunnable(() -> this.playerMaxPoints = playerMaxPoints);
+		return Mono.fromRunnable(() -> this.handId = playerMaxPoints);
 	}
 
-	public Mono<Integer> getGamesPlayed() {
-	    return Mono.just(gamesPlayed);
+	public String toString() {
+		return this.playerId + " | " + this.playerName + " | " + this.handId;
+
 	}
-
-	public Integer getGamesPlayedSync() {
-		return this.gamesPlayed;
-	}
-	
-	public Mono<Void> setGamesPlayed(int gamesPlayed) {
-	    return Mono.fromRunnable(() -> this.gamesPlayed = gamesPlayed);
-	}
-
-    public Mono<Void> receiveCard(Card card) {
-        return this.hand.addCard(card);
-    }
-
-    public Mono<Integer> getScore() {
-        return this.hand.getScore();
-    }
-
-    public Mono<Boolean> isBlackjack() {
-        return this.hand.isBlackjack();
-    }
-
-    public Mono<Boolean> isBust() {
-        return this.hand.isBust();
-    }
-
-    public Mono<Hand> getHand() {
-        return Mono.just(this.hand);
-    }
-
 
 }

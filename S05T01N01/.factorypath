@@ -64,6 +64,8 @@
     <factorypathentry kind="VARJAR" id="M2_REPO/org/springframework/spring-jdbc/6.1.13/spring-jdbc-6.1.13.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/springframework/spring-r2dbc/6.1.13/spring-r2dbc-6.1.13.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/r2dbc/r2dbc-spi/1.0.0.RELEASE/r2dbc-spi-1.0.0.RELEASE.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/io/r2dbc/r2dbc-pool/1.0.1.RELEASE/r2dbc-pool-1.0.1.RELEASE.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/io/projectreactor/addons/reactor-pool/1.0.8/reactor-pool-1.0.8.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/dev/miku/r2dbc-mysql/0.8.2.RELEASE/r2dbc-mysql-0.8.2.RELEASE.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/projectreactor/addons/reactor-extra/3.5.2/reactor-extra-3.5.2.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/projectreactor/netty/reactor-netty/1.1.22/reactor-netty-1.1.22.jar" enabled="true" runInBatchMode="false"/>
@@ -75,17 +77,21 @@
     <factorypathentry kind="VARJAR" id="M2_REPO/io/netty/incubator/netty-incubator-codec-native-quic/0.0.66.Final/netty-incubator-codec-native-quic-0.0.66.Final-linux-x86_64.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/netty/incubator/netty-incubator-codec-classes-quic/0.0.66.Final/netty-incubator-codec-classes-quic-0.0.66.Final.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/slf4j/slf4j-api/2.0.16/slf4j-api-2.0.16.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/io/r2dbc/r2dbc-pool/1.0.1.RELEASE/r2dbc-pool-1.0.1.RELEASE.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/io/projectreactor/addons/reactor-pool/1.0.8/reactor-pool-1.0.8.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/com/mysql/mysql-connector-j/8.3.0/mysql-connector-j-8.3.0.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/springdoc/springdoc-openapi-starter-webflux-ui/2.6.0/springdoc-openapi-starter-webflux-ui-2.6.0.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/springdoc/springdoc-openapi-starter-webflux-api/2.6.0/springdoc-openapi-starter-webflux-api-2.6.0.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/springdoc/springdoc-openapi-starter-common/2.6.0/springdoc-openapi-starter-common-2.6.0.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/swagger/core/v3/swagger-core-jakarta/2.2.22/swagger-core-jakarta-2.2.22.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/org/apache/commons/commons-lang3/3.14.0/commons-lang3-3.14.0.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/swagger/core/v3/swagger-annotations-jakarta/2.2.22/swagger-annotations-jakarta-2.2.22.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/swagger/core/v3/swagger-models-jakarta/2.2.22/swagger-models-jakarta-2.2.22.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/jakarta/validation/jakarta.validation-api/3.0.2/jakarta.validation-api-3.0.2.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/com/fasterxml/jackson/dataformat/jackson-dataformat-yaml/2.17.2/jackson-dataformat-yaml-2.17.2.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/webjars/swagger-ui/5.17.14/swagger-ui-5.17.14.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/org/springdoc/springdoc-openapi-webflux-core/1.8.0/springdoc-openapi-webflux-core-1.8.0.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/org/springdoc/springdoc-openapi-common/1.8.0/springdoc-openapi-common-1.8.0.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/io/swagger/core/v3/swagger-core/2.2.20/swagger-core-2.2.20.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/org/apache/commons/commons-lang3/3.14.0/commons-lang3-3.14.0.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/com/fasterxml/jackson/dataformat/jackson-dataformat-yaml/2.17.2/jackson-dataformat-yaml-2.17.2.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/io/swagger/core/v3/swagger-models/2.2.20/swagger-models-2.2.20.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/jakarta/validation/jakarta.validation-api/3.0.2/jakarta.validation-api-3.0.2.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/io/swagger/core/v3/swagger-annotations/2.2.21/swagger-annotations-2.2.21.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="PLUGIN" id="org.eclipse.jst.ws.annotations.core" enabled="false" runInBatchMode="false"/>
 </factorypath>

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import cat.itacademy.s05.t01.n01.models.Game;
 import cat.itacademy.s05.t01.n01.models.Player;
 import cat.itacademy.s05.t01.n01.services.GameService;
+import cat.itacademy.s05.t01.n01.services.PlayerService;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -23,13 +24,17 @@ public class GameController {
 
 	@Autowired
 	private GameService gameService;
+	@Autowired
+	private PlayerService playerService;
 
 	@PostMapping("/new")
-	public Mono<ResponseEntity<Game>> createNewGame(@RequestBody Mono<Player> playerMono) {
-		return playerMono.flatMap(player -> gameService.createNewGame(player))
-				.map(newGame -> ResponseEntity.status(HttpStatus.CREATED).body(newGame))
-				.onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build()));
+	public Mono<ResponseEntity<Game>> createNewGame(@RequestBody Player newPlayer) {
+	    return playerService.createNewPlayer(newPlayer.getPlayerName())
+	        .flatMap(player -> gameService.createNewGame(newPlayer.getPlayerName())
+	        .map(newGame -> ResponseEntity.status(HttpStatus.CREATED).body(newGame))
+	        .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build())));
 	}
+
 
 	@GetMapping("/{id}")
 	public Mono<ResponseEntity<Game>> getGameDetails(@PathVariable("id") String gameId) {
@@ -38,15 +43,15 @@ public class GameController {
 	}
 
 	@PostMapping("/{id}/play")
-	public Mono<ResponseEntity<Game>> makePlay(@PathVariable String gameId, @RequestParam String playType,
+	public Mono<ResponseEntity<Game>> makePlay(@PathVariable("id") String gameId, @RequestParam String playType,
 			@RequestParam int bid) {
 		return gameService.nextPlayType(gameId, playType, bid)
 				.map(game -> ResponseEntity.status(HttpStatus.OK).body(game))
 				.onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build()));
 	}
 
-	@DeleteMapping
-	public Mono<ResponseEntity<String>> deleteGame(@PathVariable String gameId) {
+	@DeleteMapping("/delete/{id}")
+	public Mono<ResponseEntity<String>> deleteGame(@PathVariable("id") String gameId) {
 		return gameService.deleteGameById(gameId)
 				.map(deleteGame -> ResponseEntity.status(HttpStatus.NO_CONTENT)
 						.body("Game " + gameId + " deleted succesfully"))

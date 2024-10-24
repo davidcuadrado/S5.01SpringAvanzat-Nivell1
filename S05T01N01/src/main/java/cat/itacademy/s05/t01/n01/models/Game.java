@@ -1,12 +1,9 @@
 package cat.itacademy.s05.t01.n01.models;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
+@Document(collection = "game")
 public class Game {
 
 	@Id
@@ -14,16 +11,27 @@ public class Game {
 	private Deck deck;
 	private Player player;
 	private Player dealer;
-	private int currentBid;
-	private int initialBudget;
-	private int highestBudget;
 	private int gameRounds;
+	
+	
 
-	public Game(String playerName) {
+	public Game() {
 		this.deck = new Deck();
-		this.player = new Player(playerName);
 		this.dealer = new Player("Dealer");
-		this.setInitialBudget(1000);
+	}
+
+	public Game(String player) {
+		this.deck = new Deck();
+		this.player = new Player(player);
+		this.dealer = new Player("Dealer");
+	}
+
+	public String getGameId() {
+		return gameId;
+	}
+
+	public void setGameId(String gameId) {
+		this.gameId = gameId;
 	}
 
 	public Deck getDeck() {
@@ -38,32 +46,6 @@ public class Game {
 		return dealer;
 	}
 
-	public int getCurrentBid() {
-		return currentBid;
-	}
-
-	public void setCurrentBid(int currentBid) {
-		this.currentBid = currentBid;
-	}
-
-	public int getInitialBudget() {
-		return initialBudget;
-	}
-
-	public void setInitialBudget(int initialBudget) {
-		this.initialBudget = initialBudget;
-	}
-
-	public int getHighestBudget() {
-		return highestBudget;
-	}
-
-	public void setHighestBudget(int currentBudget) {
-		if (currentBudget > highestBudget) {
-			this.highestBudget = currentBudget;
-		}
-	}
-
 	public int getGameRounds() {
 		return gameRounds;
 	}
@@ -71,5 +53,7 @@ public class Game {
 	public void setGameRounds(int gameRounds) {
 		this.gameRounds = gameRounds;
 	}
+	
+	
 
 }

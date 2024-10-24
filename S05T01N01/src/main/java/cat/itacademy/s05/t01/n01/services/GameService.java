@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import cat.itacademy.s05.t01.n01.models.Game;
-import cat.itacademy.s05.t01.n01.models.Player;
 import cat.itacademy.s05.t01.n01.repositories.GameRepository;
 import reactor.core.publisher.Mono;
 
@@ -13,10 +12,11 @@ public class GameService {
 
 	@Autowired
 	private GameRepository gameRepository;
-	
-	public Mono<Game> createNewGame(Player player) {
-        return player.getPlayerName().flatMap(playerName -> gameRepository.save(new Game(playerName)));
-    }
+
+	public Mono<Game> createNewGame(String player) {
+		return gameRepository.save(new Game(player))
+				.doOnError(e -> System.out.println("Error while saving the game: " + e.getMessage()));
+	}
 
 	public Mono<Game> getGameById(String gameId) {
 		return gameRepository.findById(gameId)
@@ -26,7 +26,6 @@ public class GameService {
 
 	public Mono<Game> nextPlayType(String gameId, String playType, int bid) {
 		return gameRepository.findById(gameId).flatMap(game -> {
-			game.setCurrentBid(bid);
 			return gameRepository.save(game);
 		}).switchIfEmpty(Mono.error(new IllegalArgumentException("Game ID: " + gameId + " not found.")));
 
@@ -38,7 +37,9 @@ public class GameService {
 				.switchIfEmpty(Mono.error(new IllegalArgumentException("Game ID: " + gameId + " not found.")));
 
 	}
-
+	
+	
+	/*
 	public Mono<Void> dealInitialCards(Game game) {
 		return Mono.fromRunnable(() -> {
 			game.getPlayer().receiveCard(game.getDeck().drawCard());
@@ -93,5 +94,6 @@ public class GameService {
 			});
 		});
 	}
+	*/
 
 }
