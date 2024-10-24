@@ -28,9 +28,9 @@ public class PlayerService {
 
 	}
 
-	public Mono<Player> changePlayerName(int playerId, String inputPlayerName) {
+	public Mono<Player> changePlayerName(int playerId, String inputPlayer) {
 		return playerRepository.findById(playerId).flatMap(player -> {
-			player.setPlayerNameMono(inputPlayerName);
+			player.setPlayerName(inputPlayer);
 			return playerRepository.save(player);
 		}).switchIfEmpty(Mono.error(new IllegalArgumentException("Player with ID: " + playerId + " not found")));
 	}
@@ -59,11 +59,14 @@ public class PlayerService {
 
     public Mono<Player> getPlayerHand(int playerId) {
         return playerRepository.findById(playerId)
-            .flatMap(player -> player.getHand().thenReturn(player));
+            .flatMap(player -> player.getHandMono().thenReturn(player));
     }
 
     public Mono<Player> savePlayer(Player player) {
         return playerRepository.save(player);
     }
+
+
+	
 
 }

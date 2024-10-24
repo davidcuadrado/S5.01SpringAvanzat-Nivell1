@@ -4,18 +4,15 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import lombok.Data;
 import reactor.core.publisher.Mono;
 
 @Data
 @Table(name = "players")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Player {
 
 	@Id
+	@Column("playerId")
 	private int playerId;
 	@Column("playerName")
 	private String playerName;
@@ -29,6 +26,7 @@ public class Player {
 
 	public Player(String playerName) {
 		this.playerName = playerName;
+		this.hand = new Hand();
 		this.playerMaxPoints = 1000;
 	}
 
@@ -84,8 +82,21 @@ public class Player {
 		return this.hand.isBust();
 	}
 
-	public Mono<Hand> getHand() {
+	public Mono<Hand> getHandMono() {
 		return Mono.just(this.hand);
+	}
+
+	public Hand getHand() {
+		return hand;
+	}
+
+	public void setHand(Hand hand) {
+		this.hand = hand;
+	}
+	
+	public String toString() {
+		return this.playerId + " " + this.playerName + " " + this.playerMaxPoints;
+		
 	}
 
 }
