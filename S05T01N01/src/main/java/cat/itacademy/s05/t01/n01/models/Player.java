@@ -4,8 +4,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.Data;
 import reactor.core.publisher.Mono;
 
@@ -18,18 +16,15 @@ public class Player {
 	private int playerId;
 	@Column("playerName")
 	private String playerName;
-	@Column("playerMaxPoints")
-	private int playerMaxPoints;
-	@JsonIgnore
-	private Hand hand;
+	@Column("handId")
+	private int handId;
 
 	public Player() {
 	}
 
 	public Player(String playerName) {
 		this.playerName = playerName;
-		this.hand = new Hand();
-		this.playerMaxPoints = 1000;
+		this.handId = 0;
 	}
 
 	public String getPlayerName() {
@@ -57,48 +52,20 @@ public class Player {
 	}
 
 	public Mono<Integer> getPlayerMaxPoints() {
-		return Mono.just(this.playerMaxPoints);
+		return Mono.just(this.handId);
 	}
 
 	public Integer getPlayerMaxPointsSync() {
-		return this.playerMaxPoints;
+		return this.handId;
 	}
 
 	public Mono<Void> setPlayerMaxPoints(int playerMaxPoints) {
-		return Mono.fromRunnable(() -> this.playerMaxPoints = playerMaxPoints);
+		return Mono.fromRunnable(() -> this.handId = playerMaxPoints);
 	}
 
-	public Mono<Void> receiveCard(Card card) {
-		return this.hand.addCard(card);
-	}
-
-	public Mono<Integer> getScore() {
-		return this.hand.getScore();
-	}
-
-	public Mono<Boolean> isBlackjack() {
-		return this.hand.isBlackjack();
-	}
-
-	public Mono<Boolean> isBust() {
-		return this.hand.isBust();
-	}
-
-	public Mono<Hand> getHandMono() {
-		return Mono.just(this.hand);
-	}
-
-	public Hand getHand() {
-		return hand;
-	}
-
-	public void setHand(Hand hand) {
-		this.hand = hand;
-	}
-	
 	public String toString() {
-		return this.playerId + " " + this.playerName + " " + this.playerMaxPoints;
-		
+		return this.playerId + " | " + this.playerName + " | " + this.handId;
+
 	}
 
 }

@@ -29,11 +29,12 @@ public class GameController {
 
 	@PostMapping("/new")
 	public Mono<ResponseEntity<Game>> createNewGame(@RequestBody Player newPlayer) {
-		return playerService.createNewPlayer(newPlayer.getPlayerName())
-				.flatMap(player -> gameService.createNewGame(newPlayer.getPlayerName()))
-				.map(newGame -> ResponseEntity.status(HttpStatus.CREATED).body(newGame))
-				.onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build()));
+	    return playerService.createNewPlayer(newPlayer.getPlayerName())
+	        .flatMap(player -> gameService.createNewGame(newPlayer.getPlayerName())
+	        .map(newGame -> ResponseEntity.status(HttpStatus.CREATED).body(newGame))
+	        .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build())));
 	}
+
 
 	@GetMapping("/{id}")
 	public Mono<ResponseEntity<Game>> getGameDetails(@PathVariable("id") String gameId) {

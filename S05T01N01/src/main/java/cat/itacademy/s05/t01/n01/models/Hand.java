@@ -40,7 +40,8 @@ public class Hand {
 	public Mono<List<Card>> getCards() {
 		return Mono.just(cards);
 	}
-
+	// métodos que pertenecían a Player
+	/*
 	public Mono<Boolean> isBlackjack() {
 		return getScore().map(score -> score == 21 && cards.size() == 2);
 	}
@@ -48,5 +49,35 @@ public class Hand {
 	public Mono<Boolean> isBust() {
 		return getScore().map(score -> score > 21);
 	}
+	
+	public Mono<Void> receiveCard(Card card) {
+		return this.hand.addCard(card);
+	}
+
+	public Mono<Integer> getScore() {
+		return this.hand.getScore();
+	}
+
+	public Mono<Boolean> isBlackjack() {
+		return this.hand.isBlackjack();
+	}
+
+	public Mono<Boolean> isBust() {
+		return this.hand.isBust();
+	}
+
+	public Mono<Hand> getHandMono() {
+		return Mono.just(this.hand);
+	}
+
+	public Hand getHand() {
+		return hand;
+	}
+
+	public void setHand(Hand hand) {
+		this.hand = hand;
+	}
+	
+	*/
 	
 }

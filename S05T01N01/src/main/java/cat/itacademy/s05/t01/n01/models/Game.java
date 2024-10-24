@@ -11,17 +11,19 @@ public class Game {
 	private Deck deck;
 	private Player player;
 	private Player dealer;
-	private int currentBid;
-	private int initialBudget;
-	private int highestBudget;
 	private int gameRounds;
 	
+	
+
+	public Game() {
+		this.deck = new Deck();
+		this.dealer = new Player("Dealer");
+	}
 
 	public Game(String player) {
 		this.deck = new Deck();
 		this.player = new Player(player);
 		this.dealer = new Player("Dealer");
-		this.setInitialBudget(1000);
 	}
 
 	public String getGameId() {
@@ -44,32 +46,6 @@ public class Game {
 		return dealer;
 	}
 
-	public int getCurrentBid() {
-		return currentBid;
-	}
-
-	public void setCurrentBid(int currentBid) {
-		this.currentBid = currentBid;
-	}
-
-	public int getInitialBudget() {
-		return initialBudget;
-	}
-
-	public void setInitialBudget(int initialBudget) {
-		this.initialBudget = initialBudget;
-	}
-
-	public int getHighestBudget() {
-		return highestBudget;
-	}
-
-	public void setHighestBudget(int currentBudget) {
-		if (currentBudget > highestBudget) {
-			this.highestBudget = currentBudget;
-		}
-	}
-
 	public int getGameRounds() {
 		return gameRounds;
 	}
@@ -77,5 +53,7 @@ public class Game {
 	public void setGameRounds(int gameRounds) {
 		this.gameRounds = gameRounds;
 	}
+	
+	
 
 }
