@@ -17,7 +17,7 @@ public class RankingController {
 	@Autowired
 	PlayerService playerService;
 
-	@GetMapping("/ranking")
+	@GetMapping()
 	public Flux<Player> getRanking() {
 		return playerService.getAllPlayersByRanking().map(player -> {
 			if (player.getHand() == null) {
