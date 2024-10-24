@@ -1,7 +1,6 @@
 package cat.itacademy.s05.t01.n01.models;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -16,7 +15,7 @@ public class Player {
 
 	@Id
 	@Column("playerId")
-	private int playerId;
+	private long playerId;
 	@Column("playerName")
 	private String playerName;
 	@Column("playerMaxPoints")
@@ -49,7 +48,7 @@ public class Player {
 		return Mono.fromRunnable(() -> this.playerName = playerName);
 	}
 
-	public Mono<Integer> getPlayerId() {
+	public Mono<Long> getPlayerId() {
 		return Mono.just(playerId);
 	}
 
