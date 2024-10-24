@@ -15,7 +15,7 @@ public class Player {
 
 	@Id
 	@Column("playerId")
-	private long playerId;
+	private int playerId;
 	@Column("playerName")
 	private String playerName;
 	@Column("playerMaxPoints")
@@ -48,7 +48,7 @@ public class Player {
 		return Mono.fromRunnable(() -> this.playerName = playerName);
 	}
 
-	public Mono<Long> getPlayerId() {
+	public Mono<Integer> getPlayerId() {
 		return Mono.just(playerId);
 	}
 

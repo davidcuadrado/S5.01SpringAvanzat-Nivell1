@@ -21,15 +21,11 @@ public class PlayerController {
 	PlayerService playerService;
 
 	@PutMapping("/{playerId}")
-	public Mono<ResponseEntity<Player>> setNewPlayerName(@PathVariable String playerId, @RequestBody Player player) {
-	    try {
-	        int playerIdInt = Integer.parseInt(playerId);
-	        return playerService.changePlayerName(playerIdInt, player.getPlayerName())
-	            .map(updatedPlayer -> ResponseEntity.ok(updatedPlayer))
-	            .onErrorResume(e -> Mono.just(ResponseEntity.notFound().build()));
-	    } catch (NumberFormatException e) {
-	        return Mono.just(ResponseEntity.badRequest().build());
-	    }
+	public Mono<ResponseEntity<Player>> setNewPlayerName(@PathVariable int playerId, @RequestBody Player player) {
+		return playerService.changePlayerName(playerId, player.getPlayerName())
+				.map(updatedPlayer -> ResponseEntity.ok(updatedPlayer))
+				.onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).build()));
+
 	}
 
 }
