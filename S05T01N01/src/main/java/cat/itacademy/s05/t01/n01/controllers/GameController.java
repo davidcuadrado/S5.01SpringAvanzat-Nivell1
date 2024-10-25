@@ -55,5 +55,24 @@ public class GameController {
 				.defaultIfEmpty(ResponseEntity.status(HttpStatus.NOT_FOUND).body("Game " + gameId + " not found. "));
 
 	}
+	
+	// lógica del juego a implementar en makePlay(...)
+	/*
+	@PostMapping("/start")
+    public Mono<String> startGame() {
+        gameService.startNewGame();
+        return Mono.just("New game started!");
+    }
+
+    @PostMapping("/player/draw")
+    public Mono<String> playerDraw() {
+        return gameService.playerDrawCard();
+    }
+
+    @PostMapping("/dealer/turn")
+    public Mono<String> dealerTurn() {
+        return gameService.dealerTurn();
+    }
+    */
 
 }

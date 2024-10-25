@@ -16,26 +16,25 @@ public class Hand {
 		return Mono.fromRunnable(() -> cards.add(card));
 	}
 
-	public Mono<Integer> getScore() {
-		return Mono.fromSupplier(() -> {
-			int total = 0;
-			int aces = 0;
+	public int getScore() {
+        int score = 0;
+        int aces = 0;
 
-			for (Card card : cards) {
-				total += card.getNumericValue();
-				if ("A".equals(card.getValue())) {
-					aces++;
-				}
-			}
+        for (Card card : cards) {
+            score += card.getNumericValue();
+            if (card.getValue().equals("A")) aces++;
+        }
 
-			while (total > 21 && aces > 0) {
-				total -= 10;
-				aces--;
-			}
-
-			return total;
-		});
-	}
+        while (score > 21 && aces > 0) {
+            score -= 10;
+            aces--;
+        }
+        return score;
+    }
+	
+	public boolean isBust() {
+        return getScore() > 21;
+    }
 
 	public Mono<List<Card>> getCards() {
 		return Mono.just(cards);

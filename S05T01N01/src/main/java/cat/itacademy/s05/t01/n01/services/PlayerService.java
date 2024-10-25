@@ -14,8 +14,8 @@ public class PlayerService {
 	@Autowired
 	private PlayerRepository playerRepository;
 	
-	public Mono<Player> savePlayer(Player player) {
-		return playerRepository.save(player);
+	public Mono<Player> savePlayer(Mono<Player> player) {
+		return player.flatMap(playerUpdate -> playerRepository.save(playerUpdate));
 	}
 
 	public Mono<Player> createNewPlayer(Mono<String> playerName) {
@@ -26,7 +26,7 @@ public class PlayerService {
 
 	public Flux<Player> getAllPlayersByRanking() {
 		return playerRepository.findAll().sort(
-				(player1, player2) -> player1.getPlayerMaxPointsSync().compareTo(player2.getPlayerMaxPointsSync()));
+				(player1, player2) -> player2.getPlayerMaxPointsSync().compareTo(player1.getPlayerMaxPointsSync()));
 
 	}
 
