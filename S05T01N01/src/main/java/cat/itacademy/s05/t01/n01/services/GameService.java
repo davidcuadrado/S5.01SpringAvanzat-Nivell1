@@ -25,7 +25,7 @@ public class GameService {
 
 	}
 
-	public Mono<Game> nextPlayType(String gameId, String playType, int bid) {
+	public Mono<Game> nextPlayType(String gameId, String playType) {
 		return gameRepository.findById(gameId).flatMap(game -> {
 			return gameRepository.save(game);
 		}).switchIfEmpty(Mono.error(new IllegalArgumentException("Game ID: " + gameId + " not found.")));
@@ -40,61 +40,5 @@ public class GameService {
 	}
 	
 	
-	/*
-	public Mono<Void> dealInitialCards(Game game) {
-		return Mono.fromRunnable(() -> {
-			game.getPlayer().receiveCard(game.getDeck().drawCard());
-			game.getPlayer().receiveCard(game.getDeck().drawCard());
-			game.getDealer().receiveCard(game.getDeck().drawCard());
-		});
-	}
-
-	public Mono<String> playerTurn(Game game) {
-		return game.getPlayer().isBlackjack().flatMap(isBlackjack -> {
-			if (isBlackjack) {
-				return Mono.just("Blackjack!");
-			}
-			return game.getPlayer().isBust().flatMap(isBust -> {
-				if (isBust) {
-					return Mono.just("Bust!");
-				}
-				return Mono.just("Your turn");
-			});
-		});
-	}
-
-	public Mono<Void> dealerTurn(Game game) {
-		return Mono.defer(() -> game.getDealer().getScore().flatMap(score -> {
-			if (score < 17) {
-				return game.getDealer().receiveCard(game.getDeck().drawCard()).then(Mono.just(score));
-			}
-			return Mono.just(score);
-		})).repeatWhen(scoreMono -> scoreMono.filter(score -> score < 17)).then();
-	}
-
-	public Mono<String> checkWinner(Game game) {
-		return game.getPlayer().isBust().flatMap(isPlayerBust -> {
-			if (isPlayerBust) {
-				return Mono.just("Dealer wins.");
-			}
-			return game.getDealer().isBust().flatMap(isDealerBust -> {
-				if (isDealerBust) {
-					return Mono.just("Player wins.");
-				}
-				return game.getPlayer().getScore().zipWith(game.getDealer().getScore()).flatMap(tuple -> {
-					int playerScore = tuple.getT1();
-					int dealerScore = tuple.getT2();
-					if (playerScore > dealerScore) {
-						return Mono.just("Player wins.");
-					} else if (playerScore < dealerScore) {
-						return Mono.just("Dealer wins.");
-					} else {
-						return Mono.just("Draw.");
-					}
-				});
-			});
-		});
-	}
-	*/
 
 }

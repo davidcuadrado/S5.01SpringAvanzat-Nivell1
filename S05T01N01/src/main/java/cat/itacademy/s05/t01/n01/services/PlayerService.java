@@ -13,6 +13,10 @@ public class PlayerService {
 
 	@Autowired
 	private PlayerRepository playerRepository;
+	
+	public Mono<Player> savePlayer(Player player) {
+		return playerRepository.save(player);
+	}
 
 	public Mono<Player> createNewPlayer(Mono<String> playerName) {
 		return playerName.flatMap(player -> playerRepository.save(new Player(player))).doOnError(e -> {
@@ -33,27 +37,8 @@ public class PlayerService {
 		}).switchIfEmpty(Mono.error(new IllegalArgumentException("Player with ID: " + playerId + " not found"))));
 	}
 
-	/*
-	 * public Mono<Void> addCardToPlayer(int playerId, Card card) { return
-	 * playerRepository.findById(playerId).flatMap(player ->
-	 * player.receiveCard(card)).then(); }
-	 * 
-	 * public Mono<Integer> getPlayerScore(int playerId) { return
-	 * playerRepository.findById(playerId).flatMap(Player::getScore); }
-	 * 
-	 * public Mono<Boolean> checkBlackjack(int playerId) { return
-	 * playerRepository.findById(playerId).flatMap(Player::isBlackjack); }
-	 * 
-	 * public Mono<Boolean> checkIfBust(int playerId) { return
-	 * playerRepository.findById(playerId).flatMap(Player::isBust); }
-	 * 
-	 * public Mono<Player> getPlayerHand(int playerId) { return
-	 * playerRepository.findById(playerId).flatMap(player ->
-	 * player.getHandMono().thenReturn(player)); }
-	 */
+	
 
-	public Mono<Player> savePlayer(Player player) {
-		return playerRepository.save(player);
-	}
+	
 
 }

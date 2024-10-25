@@ -41,9 +41,8 @@ public class GameController {
 	}
 
 	@PostMapping("/{id}/play")
-	public Mono<ResponseEntity<Game>> makePlay(@PathVariable("id") String gameId, @RequestParam String playType,
-			@RequestParam int bid) {
-		return gameService.nextPlayType(gameId, playType, bid)
+	public Mono<ResponseEntity<Game>> makePlay(@PathVariable("id") String gameId, @RequestParam String playType) {
+		return gameService.nextPlayType(gameId, playType)
 				.map(game -> ResponseEntity.status(HttpStatus.OK).body(game))
 				.onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build()));
 	}
