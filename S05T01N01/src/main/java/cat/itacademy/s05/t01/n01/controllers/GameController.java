@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import cat.itacademy.s05.t01.n01.models.Game;
-import cat.itacademy.s05.t01.n01.models.Player;
 import cat.itacademy.s05.t01.n01.services.GameService;
 import cat.itacademy.s05.t01.n01.services.PlayerService;
 import reactor.core.publisher.Mono;
@@ -28,17 +27,16 @@ public class GameController {
 	private PlayerService playerService;
 
 	@PostMapping("/new")
-	public Mono<ResponseEntity<Game>> createNewGame(@RequestBody Player newPlayer) {
-	    return playerService.createNewPlayer(newPlayer.getPlayerName())
-	        .flatMap(player -> gameService.createNewGame(newPlayer.getPlayerName())
-	        .map(newGame -> ResponseEntity.status(HttpStatus.CREATED).body(newGame))
-	        .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build())));
+	public Mono<ResponseEntity<Game>> createNewGame(@RequestBody String newPlayer) {
+		return playerService.createNewPlayer(Mono.just(newPlayer))
+				.flatMap(player -> gameService.createNewGame(Mono.just(player))
+						.map(newGame -> ResponseEntity.status(HttpStatus.CREATED).body(newGame))
+						.onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build())));
 	}
-
 
 	@GetMapping("/{id}")
 	public Mono<ResponseEntity<Game>> getGameDetails(@PathVariable("id") String gameId) {
-		return gameService.getGameById(gameId).map(game -> ResponseEntity.status(HttpStatus.OK).body(game))
+		return gameService.getGameById(Mono.just(gameId)).map(game -> ResponseEntity.status(HttpStatus.OK).body(game))
 				.onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).build()));
 	}
 
@@ -52,7 +50,7 @@ public class GameController {
 
 	@DeleteMapping("/delete/{id}")
 	public Mono<ResponseEntity<String>> deleteGame(@PathVariable("id") String gameId) {
-		return gameService.deleteGameById(gameId)
+		return gameService.deleteGameById(Mono.just(gameId))
 				.map(deleteGame -> ResponseEntity.status(HttpStatus.NO_CONTENT)
 						.body("Game " + gameId + " deleted succesfully"))
 				.defaultIfEmpty(ResponseEntity.status(HttpStatus.NOT_FOUND).body("Game " + gameId + " not found. "));

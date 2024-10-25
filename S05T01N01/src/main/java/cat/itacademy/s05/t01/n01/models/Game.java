@@ -20,9 +20,9 @@ public class Game {
 		this.dealer = new Player("Dealer");
 	}
 
-	public Game(String player) {
+	public Game(Player player) {
 		this.deck = new Deck();
-		this.player = new Player(player);
+		this.player = player;
 		this.dealer = new Player("Dealer");
 	}
 

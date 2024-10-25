@@ -21,8 +21,8 @@ public class PlayerController {
 	PlayerService playerService;
 
 	@PutMapping("/{playerId}")
-	public Mono<ResponseEntity<Player>> setNewPlayerName(@PathVariable int playerId, @RequestBody Player player) {
-		return playerService.changePlayerName(playerId, player.getPlayerName())
+	public Mono<ResponseEntity<Player>> setNewPlayerName(@PathVariable int playerId, @RequestBody String playerName) {
+		return playerService.changePlayerName(Mono.just(playerId), Mono.just(playerName))
 				.map(updatedPlayer -> ResponseEntity.ok(updatedPlayer))
 				.onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).build()));
 
