@@ -25,7 +25,7 @@ public class GameService {
 
 	}
 
-	public Mono<Game> nextPlayType(String gameId, String playType) {
+	public Mono<Game> nextPlayType(Mono<String> gameId, Mono<String> playType) {
 		return gameRepository.findById(gameId).flatMap(game -> {
 			return gameRepository.save(game);
 		}).switchIfEmpty(Mono.error(new IllegalArgumentException("Game ID: " + gameId + " not found.")));
