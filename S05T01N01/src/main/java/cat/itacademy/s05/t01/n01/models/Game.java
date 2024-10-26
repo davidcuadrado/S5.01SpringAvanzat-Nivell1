@@ -14,6 +14,8 @@ public class Game {
 	private Player dealer;
 	private Hand dealerHand;
 	private int gameRounds;
+	private int currentPoints;
+	private String lastResult;
 	private boolean isRunning;
 	
 	
@@ -31,6 +33,7 @@ public class Game {
 		this.dealer = new Player("Dealer");
 		this.dealerHand = new Hand();
 		this.isRunning = false;
+		this.currentPoints = 1000;
 	}
 
 	public String getGameId() {
@@ -60,6 +63,10 @@ public class Game {
 	public void setGameRounds(int gameRounds) {
 		this.gameRounds = gameRounds;
 	}
+	
+	public void incrementGameRounds() {
+		this.gameRounds += 1;
+	}
 
 	public Hand getPlayerHand() {
 		return playerHand;
@@ -83,6 +90,22 @@ public class Game {
 
 	public void setIsRunning(boolean isRunning) {
 		this.isRunning = isRunning;
+	}
+
+	public String getLastResult() {
+		return lastResult;
+	}
+
+	public void setLastResult(String lastResult) {
+		this.lastResult = lastResult;
+	}
+
+	public int getCurrentPoints() {
+		return currentPoints;
+	}
+
+	public void setCurrentPoints(int currentPoints) {
+		this.currentPoints = currentPoints;
 	}
 	
 	

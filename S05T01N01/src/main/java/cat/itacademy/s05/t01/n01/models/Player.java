@@ -18,6 +18,8 @@ public class Player {
 	private String playerName;
 	@Column("handId")
 	private int handId;
+	@Column("currentPoints")
+	private int maxPoints;
 
 	public Player() {
 	}
@@ -51,16 +53,29 @@ public class Player {
 		return Mono.fromRunnable(() -> this.playerId = playerId);
 	}
 
-	public Mono<Integer> getPlayerMaxPoints() {
+	public Mono<Integer> getPlayerHandIdMono() {
 		return Mono.just(this.handId);
 	}
 
-	public Integer getPlayerMaxPointsSync() {
+	public int getPlayerHandId() {
 		return this.handId;
 	}
+	
+	public void setPlayerHandId(int handId) {
+		this.handId = handId;
+	}
 
-	public Mono<Void> setPlayerMaxPoints(int playerMaxPoints) {
-		return Mono.fromRunnable(() -> this.handId = playerMaxPoints);
+
+	public void setPlayerMaxPoints(int maxPoints) {
+		this.maxPoints = maxPoints;
+	}
+	
+	public Mono<Integer> getPlayerMaxPoints() {
+		return Mono.just(this.maxPoints);
+	}
+
+	public Integer getPlayerMaxPointsSync() {
+		return this.maxPoints;
 	}
 
 	public String toString() {

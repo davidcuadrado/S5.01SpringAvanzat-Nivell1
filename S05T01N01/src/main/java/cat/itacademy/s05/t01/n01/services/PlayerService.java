@@ -36,6 +36,13 @@ public class PlayerService {
 			return playerRepository.save(player);
 		}).switchIfEmpty(Mono.error(new IllegalArgumentException("Player with ID: " + playerId + " not found"))));
 	}
+	
+	public Mono<Player> updatePlayerMaxPoints(Mono<Integer> playerId, Mono<Integer> inputPlayerMaxPoints) {
+		return playerId.flatMap(id -> playerRepository.findById(id)).flatMap(player -> inputPlayerMaxPoints.flatMap(points -> {
+			player.setPlayerMaxPoints(points);
+			return playerRepository.save(player);
+		}).switchIfEmpty(Mono.error(new IllegalArgumentException("Player with ID: " + playerId + " not found"))));
+	}
 
 	
 
