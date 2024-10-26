@@ -27,8 +27,8 @@ public class Game {
 	}
 
 	public Game(Player player) {
-		this.deck = new Deck();
 		this.player = player;
+		this.deck = new Deck();
 		this.playerHand = new Hand();
 		this.dealer = new Player("Dealer");
 		this.dealerHand = new Hand();

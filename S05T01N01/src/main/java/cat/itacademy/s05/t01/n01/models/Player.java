@@ -18,7 +18,7 @@ public class Player {
 	private String playerName;
 	@Column("handId")
 	private int handId;
-	@Column("currentPoints")
+	@Column("maxPoints")
 	private int maxPoints;
 
 	public Player() {
@@ -27,6 +27,7 @@ public class Player {
 	public Player(String playerName) {
 		this.playerName = playerName;
 		this.handId = 0;
+		this.maxPoints = 1000;
 	}
 
 	public String getPlayerName() {
