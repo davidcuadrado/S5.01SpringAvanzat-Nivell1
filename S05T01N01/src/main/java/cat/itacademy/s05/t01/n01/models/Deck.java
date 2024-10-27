@@ -7,7 +7,7 @@ public class Deck {
 	private ArrayList<Card> cards;
 
 	public Deck() {
-		cards = new ArrayList<>();
+		this.cards = new ArrayList<>();
 		String[] suits = { "Hearts", "Diamonds", "Clubs", "Spades" };
 		String[] values = { "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" };
 
@@ -21,10 +21,6 @@ public class Deck {
 
 	public ArrayList<Card> getCards() {
 		return cards;
-	}
-
-	public void setCards(ArrayList<Card> cards) {
-		this.cards = cards;
 	}
 
 	public void shuffle() {

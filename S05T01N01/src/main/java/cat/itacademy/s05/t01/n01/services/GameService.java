@@ -4,96 +4,120 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import cat.itacademy.s05.t01.n01.models.Game;
+import cat.itacademy.s05.t01.n01.models.Player;
 import cat.itacademy.s05.t01.n01.repositories.GameRepository;
 import reactor.core.publisher.Mono;
+
 
 @Service
 public class GameService {
 
 	@Autowired
 	private GameRepository gameRepository;
+	@Autowired
+	private PlayerService playerService;
 
-	public Mono<Game> createNewGame(String player) {
-		return gameRepository.save(new Game(player))
-				.doOnError(e -> System.out.println("Error while saving the game: " + e.getMessage()));
+	public Mono<Game> createNewGame(Mono<Player> savedPlayer) {
+		return savedPlayer.flatMap(player -> gameRepository.save(new Game(player)))
+				.doOnError(e -> System.out.println("Error while saving the player: " + e.getMessage()));
 	}
 
-	public Mono<Game> getGameById(String gameId) {
-		return gameRepository.findById(gameId)
+	public Mono<Game> getGameById(Mono<String> gameId) {
+		return gameId.flatMap(id -> gameRepository.findById(id))
 				.switchIfEmpty(Mono.error(new IllegalArgumentException("Game ID: " + gameId + " not found.")));
 
 	}
 
-	public Mono<Game> nextPlayType(String gameId, String playType, int bid) {
-		return gameRepository.findById(gameId).flatMap(game -> {
+	public Mono<Game> nextPlayType(Mono<String> gameId, Mono<String> playType) {
+		return gameId.flatMap(id -> gameRepository.findById(id)).flatMap(game -> playType.flatMap(type -> {
+			if (game.getIsRunning() == true) {
+				switch (type) {
+				case "start" -> startGame();
+				case "hit" -> playerHit(Mono.just(game));
+				case "stand" -> playerStand(Mono.just(game));
+				case "close" -> gameClose(Mono.just(game));
+
+				default -> Mono.error(new IllegalArgumentException("Invalid play type input. "));
+				}
+			} else if (game.getIsRunning() == false && type.equalsIgnoreCase("start")) {
+				game.setIsRunning(true);
+				startGame();
+
+			} else {
+				Mono.error(new IllegalArgumentException("Invalid play type input. "));
+			}
+
 			return gameRepository.save(game);
-		}).switchIfEmpty(Mono.error(new IllegalArgumentException("Game ID: " + gameId + " not found.")));
+		})).switchIfEmpty(Mono.error(new IllegalArgumentException("Game ID: " + gameId + " not found.")));
 
 	}
 
-	public Mono<Game> deleteGameById(String gameId) {
+	public Mono<Game> deleteGameById(Mono<String> gameId) {
 		return gameRepository.findById(gameId)
 				.flatMap(existingGame -> gameRepository.delete(existingGame).then(Mono.just(existingGame)))
 				.switchIfEmpty(Mono.error(new IllegalArgumentException("Game ID: " + gameId + " not found.")));
 
 	}
-	
-	
-	/*
-	public Mono<Void> dealInitialCards(Game game) {
-		return Mono.fromRunnable(() -> {
-			game.getPlayer().receiveCard(game.getDeck().drawCard());
-			game.getPlayer().receiveCard(game.getDeck().drawCard());
-			game.getDealer().receiveCard(game.getDeck().drawCard());
+
+	public Mono<String> startGame() {
+		return Mono.just("Game is ready to start. ");
+
+	}
+
+	public Mono<Game> playerHit(Mono<Game> gameMono) {
+		return gameMono.flatMap(game -> {
+			game.getPlayerHand().addCard(game.getDeck().drawCard());
+
+			if (game.getPlayerHand().getScore() > 21) {
+				game.setIsRunning(false);
+				game.setLastResult("Player busts with " + game.getPlayerHand().getScore() + "! Dealer wins the round");
+				return gameRepository.save(game);
+			}
+
+			return gameRepository.save(game);
 		});
 	}
 
-	public Mono<String> playerTurn(Game game) {
-		return game.getPlayer().isBlackjack().flatMap(isBlackjack -> {
-			if (isBlackjack) {
-				return Mono.just("Blackjack!");
+	public Mono<Game> playerStand(Mono<Game> gameMono) {
+		return gameMono.flatMap(game -> {
+
+			while (game.getDealerHand().getScore() < 17) {
+				game.getDealerHand().addCard(game.getDeck().drawCard());
 			}
-			return game.getPlayer().isBust().flatMap(isBust -> {
-				if (isBust) {
-					return Mono.just("Bust!");
-				}
-				return Mono.just("Your turn");
-			});
+
+			if (game.getDealerHand().getScore() > 21) {
+				game.setLastResult("Dealer busts with " + game.getDealerHand().getScore() + "! Player wins the round.");
+				game.setCurrentPoints(game.getCurrentPoints() + 100);
+			} else if (game.getDealerHand().getScore() > game.getPlayerHand().getScore()) {
+				game.setLastResult("Dealer wins with " + +game.getDealerHand().getScore() + " against player's "
+						+ game.getPlayerHand().getScore() + " hand. ");
+				game.setCurrentPoints(game.getCurrentPoints() - 100);
+			} else if (game.getDealerHand().getScore() == game.getPlayerHand().getScore()) {
+				game.setLastResult("It's a tie! " + "Both hands are " + game.getPlayerHand().getScore());
+			} else {
+				game.setLastResult("Player wins with " + +game.getPlayerHand().getScore() + " against dealer's "
+						+ game.getDealerHand().getScore() + " hand. ");
+			}
+
+			return gameRepository.save(game);
 		});
 	}
 
-	public Mono<Void> dealerTurn(Game game) {
-		return Mono.defer(() -> game.getDealer().getScore().flatMap(score -> {
-			if (score < 17) {
-				return game.getDealer().receiveCard(game.getDeck().drawCard()).then(Mono.just(score));
+	public Mono<Game> gameClose(Mono<Game> gameMono) {
+		return gameMono.flatMap(game -> {
+			if (game.getCurrentPoints() > game.getPlayer().getPlayerMaxPointsSync()) {
+				return playerService
+						.updatePlayerMaxPoints(game.getPlayer().getPlayerId(), Mono.just(game.getCurrentPoints()))
+						.flatMap(updatedPlayer -> {
+							game.getPlayer().setPlayerMaxPoints(game.getCurrentPoints());
+							game.setIsRunning(false);
+							return gameRepository.save(game);
+						});
+			} else {
+				game.setIsRunning(false);
+				return gameRepository.save(game);
 			}
-			return Mono.just(score);
-		})).repeatWhen(scoreMono -> scoreMono.filter(score -> score < 17)).then();
-	}
-
-	public Mono<String> checkWinner(Game game) {
-		return game.getPlayer().isBust().flatMap(isPlayerBust -> {
-			if (isPlayerBust) {
-				return Mono.just("Dealer wins.");
-			}
-			return game.getDealer().isBust().flatMap(isDealerBust -> {
-				if (isDealerBust) {
-					return Mono.just("Player wins.");
-				}
-				return game.getPlayer().getScore().zipWith(game.getDealer().getScore()).flatMap(tuple -> {
-					int playerScore = tuple.getT1();
-					int dealerScore = tuple.getT2();
-					if (playerScore > dealerScore) {
-						return Mono.just("Player wins.");
-					} else if (playerScore < dealerScore) {
-						return Mono.just("Dealer wins.");
-					} else {
-						return Mono.just("Draw.");
-					}
-				});
-			});
 		});
 	}
-	*/
 
 }

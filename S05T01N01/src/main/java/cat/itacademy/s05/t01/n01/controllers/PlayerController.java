@@ -11,18 +11,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cat.itacademy.s05.t01.n01.models.Player;
 import cat.itacademy.s05.t01.n01.services.PlayerService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import reactor.core.publisher.Mono;
 
+@Tag(name = "Player", description = "the Player API")
 @RestController
 @RequestMapping("/player")
 public class PlayerController {
 
 	@Autowired
 	PlayerService playerService;
-
+	
+	@Operation(summary = "Change player name", description = "Modify an existing player's name introducing its ID and new name. ")
 	@PutMapping("/{playerId}")
-	public Mono<ResponseEntity<Player>> setNewPlayerName(@PathVariable int playerId, @RequestBody Player player) {
-		return playerService.changePlayerName(playerId, player.getPlayerName())
+	public Mono<ResponseEntity<Player>> setNewPlayerName(@PathVariable int playerId, @RequestBody String playerName) {
+		return playerService.changePlayerName(Mono.just(playerId), Mono.just(playerName))
 				.map(updatedPlayer -> ResponseEntity.ok(updatedPlayer))
 				.onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).build()));
 
