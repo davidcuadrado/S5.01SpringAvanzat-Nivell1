@@ -3,6 +3,9 @@ package cat.itacademy.s05.t01.n01.models;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Game entity that represent every game created. ")
 @Document(collection = "game")
 public class Game {
 

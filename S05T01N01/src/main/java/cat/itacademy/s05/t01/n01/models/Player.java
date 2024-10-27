@@ -4,10 +4,11 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-import lombok.Data;
+import io.swagger.v3.oas.annotations.media.Schema;
 import reactor.core.publisher.Mono;
 
-@Data
+
+@Schema(description = "Player entity that represents every player that created a game. ")
 @Table(name = "players")
 public class Player {
 
