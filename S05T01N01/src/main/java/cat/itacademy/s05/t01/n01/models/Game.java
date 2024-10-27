@@ -20,9 +20,6 @@ public class Game {
 	private int currentPoints;
 	private String lastResult;
 	private boolean isRunning;
-	
-	
-	
 
 	public Game() {
 		this.deck = new Deck();
@@ -66,7 +63,7 @@ public class Game {
 	public void setGameRounds(int gameRounds) {
 		this.gameRounds = gameRounds;
 	}
-	
+
 	public void incrementGameRounds() {
 		this.gameRounds += 1;
 	}
@@ -110,7 +107,5 @@ public class Game {
 	public void setCurrentPoints(int currentPoints) {
 		this.currentPoints = currentPoints;
 	}
-	
-	
 
 }

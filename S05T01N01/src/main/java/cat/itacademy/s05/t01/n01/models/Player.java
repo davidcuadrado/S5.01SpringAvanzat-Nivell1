@@ -62,16 +62,15 @@ public class Player {
 	public int getPlayerHandId() {
 		return this.handId;
 	}
-	
+
 	public void setPlayerHandId(int handId) {
 		this.handId = handId;
 	}
 
-
 	public void setPlayerMaxPoints(int maxPoints) {
 		this.maxPoints = maxPoints;
 	}
-	
+
 	public Mono<Integer> getPlayerMaxPoints() {
 		return Mono.just(this.maxPoints);
 	}
@@ -82,7 +81,6 @@ public class Player {
 
 	public String toString() {
 		return this.playerId + " | " + this.playerName + " | " + this.handId;
-
 	}
 
 }
