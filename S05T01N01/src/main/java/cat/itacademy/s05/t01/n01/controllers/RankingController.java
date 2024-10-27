@@ -18,7 +18,7 @@ public class RankingController {
 
 	@Autowired
 	PlayerService playerService;
-	
+
 	@Operation(summary = "Get player ladder", description = "Retrieve all ranked players. ")
 	@GetMapping()
 	public Flux<Player> getRanking() {

@@ -22,7 +22,7 @@ public class PlayerController {
 
 	@Autowired
 	PlayerService playerService;
-	
+
 	@Operation(summary = "Change player name", description = "Modify an existing player's name introducing its ID and new name. ")
 	@PutMapping("/{playerId}")
 	public Mono<ResponseEntity<Player>> setNewPlayerName(@PathVariable int playerId, @RequestBody String playerName) {

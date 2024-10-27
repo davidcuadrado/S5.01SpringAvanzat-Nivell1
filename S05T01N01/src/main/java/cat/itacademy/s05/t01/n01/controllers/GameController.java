@@ -27,7 +27,7 @@ public class GameController {
 	private GameService gameService;
 	@Autowired
 	private PlayerService playerService;
-	
+
 	@Operation(summary = "Create a new game", description = "Prepare a new game after introducing the player name. ")
 	@PostMapping("/new")
 	public Mono<ResponseEntity<Game>> createNewGame(@RequestBody String newPlayer) {
@@ -36,14 +36,14 @@ public class GameController {
 						.map(newGame -> ResponseEntity.status(HttpStatus.CREATED).body(newGame))
 						.onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build())));
 	}
-	
+
 	@Operation(summary = "Search for game details", description = "Retrieve an especific game details via ID from the database. ")
 	@GetMapping("/{id}")
 	public Mono<ResponseEntity<Game>> getGameDetails(@PathVariable("id") String gameId) {
 		return gameService.getGameById(Mono.just(gameId)).map(game -> ResponseEntity.status(HttpStatus.OK).body(game))
 				.onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).build()));
 	}
-	
+
 	@Operation(summary = "Play the game", description = "Start playing the game, make your next decision or save your progress. ")
 	@PostMapping("/{id}/play")
 	public Mono<ResponseEntity<Game>> makePlay(@PathVariable("id") String gameId, @RequestBody String playType) {
@@ -51,7 +51,7 @@ public class GameController {
 				.map(game -> ResponseEntity.status(HttpStatus.OK).body(game))
 				.onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build()));
 	}
-	
+
 	@Operation(summary = "Delete a game", description = "Delete an existing game introducing its game ID. ")
 	@DeleteMapping("/{id}/delete")
 	public Mono<ResponseEntity<String>> deleteGame(@PathVariable("id") String gameId) {
@@ -61,24 +61,5 @@ public class GameController {
 				.defaultIfEmpty(ResponseEntity.status(HttpStatus.NOT_FOUND).body("Game " + gameId + " not found. "));
 
 	}
-	
-	// lógica del juego a implementar en makePlay(...)
-	/*
-	@PostMapping("/start")
-    public Mono<String> startGame() {
-        gameService.startNewGame();
-        return Mono.just("New game started!");
-    }
-
-    @PostMapping("/player/draw")
-    public Mono<String> playerDraw() {
-        return gameService.playerDrawCard();
-    }
-
-    @PostMapping("/dealer/turn")
-    public Mono<String> dealerTurn() {
-        return gameService.dealerTurn();
-    }
-    */
 
 }
