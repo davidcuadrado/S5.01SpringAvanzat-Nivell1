@@ -24,8 +24,7 @@ public class GameService {
 
 	public Mono<Game> getGameById(Mono<String> gameId) {
 		return gameId.flatMap(id -> gameRepository.findById(id))
-				.switchIfEmpty(Mono.error(new NotFoundException("Game ID: " + gameId + " not found.")))
-				.onErrorMap(e -> new DatabaseException("An error happend while retrieving the game. "));
+				.switchIfEmpty(Mono.error(new NotFoundException("Game ID: " + gameId + " not found.")));
 
 	}
 
@@ -56,9 +55,8 @@ public class GameService {
 
 	public Mono<Game> deleteGameById(Mono<String> gameId) {
 		return gameRepository.findById(gameId)
-				.flatMap(existingGame -> gameRepository.delete(existingGame).then(Mono.just(existingGame)))
-				.switchIfEmpty(Mono.error(new NotFoundException("Game ID: " + gameId + " not found.")));
-
+				.switchIfEmpty(Mono.error(new NotFoundException("Game ID: " + gameId + " not found.")))
+				.flatMap(existingGame -> gameRepository.delete(existingGame).then(Mono.just(existingGame)));
 	}
 
 	public Mono<String> startGame(Mono<Game> gameMono) {
