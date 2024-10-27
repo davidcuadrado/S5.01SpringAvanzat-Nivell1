@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import cat.itacademy.s05.t01.n01.models.Game;
@@ -41,14 +40,13 @@ public class GameController {
 	}
 
 	@PostMapping("/{id}/play")
-	public Mono<ResponseEntity<Game>> makePlay(@PathVariable("id") String gameId, @RequestParam String playType,
-			@RequestParam int bid) {
-		return gameService.nextPlayType(gameId, playType, bid)
+	public Mono<ResponseEntity<Game>> makePlay(@PathVariable("id") String gameId, @RequestBody String playType) {
+		return gameService.nextPlayType(Mono.just(gameId), Mono.just(playType))
 				.map(game -> ResponseEntity.status(HttpStatus.OK).body(game))
 				.onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build()));
 	}
 
-	@DeleteMapping("/delete/{id}")
+	@DeleteMapping("/{id}/delete")
 	public Mono<ResponseEntity<String>> deleteGame(@PathVariable("id") String gameId) {
 		return gameService.deleteGameById(Mono.just(gameId))
 				.map(deleteGame -> ResponseEntity.status(HttpStatus.NO_CONTENT)
@@ -56,5 +54,24 @@ public class GameController {
 				.defaultIfEmpty(ResponseEntity.status(HttpStatus.NOT_FOUND).body("Game " + gameId + " not found. "));
 
 	}
+	
+	// lógica del juego a implementar en makePlay(...)
+	/*
+	@PostMapping("/start")
+    public Mono<String> startGame() {
+        gameService.startNewGame();
+        return Mono.just("New game started!");
+    }
+
+    @PostMapping("/player/draw")
+    public Mono<String> playerDraw() {
+        return gameService.playerDrawCard();
+    }
+
+    @PostMapping("/dealer/turn")
+    public Mono<String> dealerTurn() {
+        return gameService.dealerTurn();
+    }
+    */
 
 }
