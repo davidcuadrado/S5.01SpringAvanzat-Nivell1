@@ -25,13 +25,13 @@ public class GameService {
 	public Mono<Game> getGameById(Mono<String> gameId) {
 		return gameId.flatMap(id -> gameRepository.findById(id))
 				.switchIfEmpty(Mono.error(new NotFoundException("Game ID: " + gameId + " not found.")));
-
 	}
 
 	public Mono<Game> nextPlayType(Mono<String> gameId, Mono<String> playType) {
 		return gameId.flatMap(id -> gameRepository.findById(id))
 				.switchIfEmpty(Mono.error(new NotFoundException("Game ID: " + gameId + " not found.")))
 				.flatMap(game -> playType.flatMap(type -> {
+
 					if (game.getIsRunning() == true) {
 						switch (type) {
 						case "start" -> startGame(Mono.just(game));
@@ -46,7 +46,7 @@ public class GameService {
 						startGame(Mono.just(game));
 
 					} else {
-						Mono.error(new IllegalArgumentException("Game has not been started. Start the game to play. "));
+						Mono.error(new BadRequestException("Game has not been started. Start the game to play. "));
 					}
 
 					return gameRepository.save(game);
@@ -54,7 +54,7 @@ public class GameService {
 	}
 
 	public Mono<Game> deleteGameById(Mono<String> gameId) {
-		return gameRepository.findById(gameId)
+		return gameId.flatMap(id -> gameRepository.findById(id))
 				.switchIfEmpty(Mono.error(new NotFoundException("Game ID: " + gameId + " not found.")))
 				.flatMap(existingGame -> gameRepository.delete(existingGame).then(Mono.just(existingGame)));
 	}

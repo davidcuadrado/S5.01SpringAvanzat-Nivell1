@@ -95,5 +95,12 @@ class GameServiceTest {
 		Mono<Game> result = gameService.deleteGameById(Mono.just(gameId));
 
 		StepVerifier.create(result).expectNext(game).verifyComplete();
+
+		when(gameRepository.findById(gameId)).thenReturn(Mono.empty());
+
+		result = gameService.deleteGameById(Mono.just(gameId));
+
+		StepVerifier.create(result).expectError(NotFoundException.class).verify();
 	}
+
 }
