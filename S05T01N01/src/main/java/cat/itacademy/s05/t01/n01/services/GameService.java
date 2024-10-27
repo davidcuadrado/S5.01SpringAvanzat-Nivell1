@@ -65,12 +65,12 @@ public class GameService {
 
 			Mono<Void> dealerCards = game.getDealerHand().addCard(game.getDeck().drawCard())
 					.then(game.getDealerHand().addCard(game.getDeck().drawCard()));
-			return Mono.when(playerCards, dealerCards).then(checkForBlackjackAndSetResult(game))
+			return Mono.when(playerCards, dealerCards).then(checkForBlackjack(game))
 					.flatMap(gameRepository::save).thenReturn(game.getLastResult());
 		});
 	}
 
-	private Mono<Game> checkForBlackjackAndSetResult(Game game) {
+	private Mono<Game> checkForBlackjack(Game game) {
 		return Mono.defer(() -> {
 			boolean playerHasBlackjack = game.getPlayerHand().getScore() == 21;
 			boolean dealerHasBlackjack = game.getDealerHand().getScore() == 21;
