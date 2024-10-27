@@ -7,6 +7,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import io.swagger.v3.oas.annotations.media.Schema;
 import reactor.core.publisher.Mono;
 
+
 @Schema(description = "Player entity that represents every player that created a game. ")
 @Table(name = "players")
 public class Player {
