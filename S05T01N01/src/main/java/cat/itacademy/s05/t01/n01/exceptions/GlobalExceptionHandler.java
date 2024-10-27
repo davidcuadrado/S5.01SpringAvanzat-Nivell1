@@ -8,16 +8,29 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 	
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<String> handleAny(Exception e){
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error happend. ");
+	}
+	
 	@ExceptionHandler(IllegalArgumentException.class)
 	public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException e){
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 	}
 	
-	/*
-	@ExceptionHandler(Exception.class)
-	public ResponseEntity<String> handleAny(Exception e){
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong");
+	@ExceptionHandler(NotFoundException.class)
+	public ResponseEntity<String> handleNotFoundException(NotFoundException e) {
+	    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 	}
-	*/
+	
+	@ExceptionHandler(BadRequestException.class)
+	public ResponseEntity<String> handleBadRequestException(BadRequestException e) {
+	    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+	}
+
+	@ExceptionHandler(DatabaseException.class)
+	public ResponseEntity<String> handleDatabaseException(DatabaseException e) {
+	    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Database error: " + e.getMessage());
+	}
 
 }

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import cat.itacademy.s05.t01.n01.models.Game;
 import cat.itacademy.s05.t01.n01.models.Player;
 import cat.itacademy.s05.t01.n01.repositories.GameRepository;
+import cat.itacademy.s05.t01.n01.exceptions.*;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -18,43 +19,45 @@ public class GameService {
 
 	public Mono<Game> createNewGame(Mono<Player> savedPlayer) {
 		return savedPlayer.flatMap(player -> gameRepository.save(new Game(player)))
-				.doOnError(e -> System.out.println("Error while saving the player: " + e.getMessage()));
+				.onErrorMap(e -> new DatabaseException("An error happend while creting new game"));
 	}
 
 	public Mono<Game> getGameById(Mono<String> gameId) {
 		return gameId.flatMap(id -> gameRepository.findById(id))
-				.switchIfEmpty(Mono.error(new IllegalArgumentException("Game ID: " + gameId + " not found.")));
+				.switchIfEmpty(Mono.error(new NotFoundException("Game ID: " + gameId + " not found.")))
+				.onErrorMap(e -> new DatabaseException("An error happend while retrieving the game. "));
 
 	}
 
 	public Mono<Game> nextPlayType(Mono<String> gameId, Mono<String> playType) {
-		return gameId.flatMap(id -> gameRepository.findById(id)).flatMap(game -> playType.flatMap(type -> {
-			if (game.getIsRunning() == true) {
-				switch (type) {
-				case "start" -> startGame(Mono.just(game));
-				case "hit" -> playerHit(Mono.just(game));
-				case "stand" -> playerStand(Mono.just(game));
-				case "close" -> gameClose(Mono.just(game));
+		return gameId.flatMap(id -> gameRepository.findById(id))
+				.switchIfEmpty(Mono.error(new NotFoundException("Game ID: " + gameId + " not found.")))
+				.flatMap(game -> playType.flatMap(type -> {
+					if (game.getIsRunning() == true) {
+						switch (type) {
+						case "start" -> startGame(Mono.just(game));
+						case "hit" -> playerHit(Mono.just(game));
+						case "stand" -> playerStand(Mono.just(game));
+						case "close" -> gameClose(Mono.just(game));
 
-				default -> Mono.error(new IllegalArgumentException("Invalid play type input. "));
-				}
-			} else if (game.getIsRunning() == false && type.equalsIgnoreCase("start")) {
-				game.setIsRunning(true);
-				startGame(Mono.just(game));
+						default -> Mono.error(new BadRequestException("Invalid play type input. "));
+						}
+					} else if (game.getIsRunning() == false && type.equalsIgnoreCase("start")) {
+						game.setIsRunning(true);
+						startGame(Mono.just(game));
 
-			} else {
-				Mono.error(new IllegalArgumentException("Invalid play type input. "));
-			}
+					} else {
+						Mono.error(new IllegalArgumentException("Game has not been started. Start the game to play. "));
+					}
 
-			return gameRepository.save(game);
-		})).switchIfEmpty(Mono.error(new IllegalArgumentException("Game ID: " + gameId + " not found.")));
-
+					return gameRepository.save(game);
+				})).onErrorMap(e -> new DatabaseException("Unable to save progress. "));
 	}
 
 	public Mono<Game> deleteGameById(Mono<String> gameId) {
 		return gameRepository.findById(gameId)
 				.flatMap(existingGame -> gameRepository.delete(existingGame).then(Mono.just(existingGame)))
-				.switchIfEmpty(Mono.error(new IllegalArgumentException("Game ID: " + gameId + " not found.")));
+				.switchIfEmpty(Mono.error(new NotFoundException("Game ID: " + gameId + " not found.")));
 
 	}
 
