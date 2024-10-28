@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cat.itacademy.s05.t01.n01.models.Player;
 import cat.itacademy.s05.t01.n01.services.PlayerService;
+import cat.itacademy.s05.t01.n01.exceptions.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import reactor.core.publisher.Flux;
@@ -18,12 +19,12 @@ public class RankingController {
 
 	@Autowired
 	PlayerService playerService;
-	
+
 	@Operation(summary = "Get player ladder", description = "Retrieve all ranked players. ")
 	@GetMapping()
 	public Flux<Player> getRanking() {
 		return playerService.getAllPlayersByRanking()
-				.switchIfEmpty(Flux.error(new IllegalArgumentException("No players found in ranking.")));
+				.switchIfEmpty(Flux.error(new NotFoundException("No players found in ranking.")));
 	}
 
 }
