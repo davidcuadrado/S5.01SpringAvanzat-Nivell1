@@ -21,11 +21,6 @@ public class Game {
 	private String lastResult;
 	private boolean isRunning;
 
-	public Game() {
-		this.deck = new Deck();
-		this.dealer = new Player("Dealer");
-	}
-
 	public Game(Player player) {
 		this.player = player;
 		this.deck = new Deck();
