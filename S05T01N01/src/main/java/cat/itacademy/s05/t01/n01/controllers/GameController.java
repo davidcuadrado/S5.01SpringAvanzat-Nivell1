@@ -36,7 +36,7 @@ public class GameController {
 		return playerService.createNewPlayer(Mono.just(newPlayer))
 				.flatMap(player -> gameService.createNewGame(Mono.just(player))
 						.map(newGame -> ResponseEntity.status(HttpStatus.CREATED).body(newGame))
-						.onErrorMap(e -> new DatabaseException("Error saving new game. ")));
+						.onErrorMap(e -> new IllegalArgumentException("Error saving new game. ")));
 	}
 
 	@Operation(summary = "Search for game details", description = "Retrieve an especific game details via ID from the database. ")

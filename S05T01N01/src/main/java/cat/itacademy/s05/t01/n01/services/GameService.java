@@ -59,41 +59,43 @@ public class GameService {
 				.flatMap(existingGame -> gameRepository.delete(existingGame).then(Mono.just(existingGame)));
 	}
 
-	public Mono<String> startGame(Mono<Game> gameMono) {
-		return gameMono.flatMap(game -> {
-			Mono<Void> playerCards = game.getPlayerHand().addCard(game.getDeck().drawCard())
-					.then(game.getPlayerHand().addCard(game.getDeck().drawCard()));
+	public Mono<Game> startGame(Mono<Game> gameMono) {
+	    return gameMono.flatMap(game -> {
+	        Mono<Void> playerCards = game.getPlayerHand().addCard(game.getDeck().drawCard())
+	                .then(game.getPlayerHand().addCard(game.getDeck().drawCard()));
 
-			Mono<Void> dealerCards = game.getDealerHand().addCard(game.getDeck().drawCard())
-					.then(game.getDealerHand().addCard(game.getDeck().drawCard()));
-			return Mono.when(playerCards, dealerCards).then(checkForBlackjack(game))
-					.flatMap(gameRepository::save).thenReturn(game.getLastResult());
-		});
+	        Mono<Void> dealerCards = game.getDealerHand().addCard(game.getDeck().drawCard())
+	                .then(game.getDealerHand().addCard(game.getDeck().drawCard()));
+
+	        return Mono.when(playerCards, dealerCards)
+	                .then(checkForBlackjack(Mono.just(game)))
+	                .flatMap(gameRepository::save);
+	    });
 	}
 
-	private Mono<Game> checkForBlackjack(Game game) {
-		return Mono.defer(() -> {
-			boolean playerHasBlackjack = game.getPlayerHand().getScore() == 21;
-			boolean dealerHasBlackjack = game.getDealerHand().getScore() == 21;
+	private Mono<Game> checkForBlackjack(Mono<Game> gameMono) {
+	    return gameMono.flatMap(game -> Mono.defer(() -> {
+	        boolean playerHasBlackjack = game.getPlayerHand().getScore() == 21;
+	        boolean dealerHasBlackjack = game.getDealerHand().getScore() == 21;
 
-			if (playerHasBlackjack && dealerHasBlackjack) {
-				game.setLastResult("Empate: Ambos tienen Blackjack.");
-				game.setIsRunning(false);
-			} else if (playerHasBlackjack) {
-				game.setLastResult("Jugador gana con Blackjack!");
-				game.setCurrentPoints(game.getCurrentPoints() + 150);
-				game.setIsRunning(false);
-			} else if (dealerHasBlackjack) {
-				game.setLastResult("Dealer gana con Blackjack.");
-				game.setCurrentPoints(game.getCurrentPoints() - 100);
-				game.setIsRunning(false);
-			} else {
-				game.setIsRunning(true);
-				game.setLastResult("Juego listo para continuar.");
-			}
+	        if (playerHasBlackjack && dealerHasBlackjack) {
+	            game.setLastResult("Draw: player and dealer both have a BLackjack! ");
+	            game.setIsRunning(false);
+	        } else if (playerHasBlackjack) {
+	            game.setLastResult("Player wins with Blackjack!");
+	            game.setCurrentPoints(game.getCurrentPoints() + 150);
+	            game.setIsRunning(false);
+	        } else if (dealerHasBlackjack) {
+	            game.setLastResult("Dealer wins with Blackjack.");
+	            game.setCurrentPoints(game.getCurrentPoints() - 100);
+	            game.setIsRunning(false);
+	        } else {
+	            game.setIsRunning(true);
+	            game.setLastResult("Select your next action.");
+	        }
 
-			return Mono.just(game);
-		});
+	        return Mono.just(game);
+	    }));
 	}
 
 	public Mono<Game> playerHit(Mono<Game> gameMono) {
