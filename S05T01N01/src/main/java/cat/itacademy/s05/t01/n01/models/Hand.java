@@ -43,17 +43,18 @@ public class Hand {
         return score > 21;
     }
 
-    public Mono<List<Card>> getCards() {
-        return Mono.just(new ArrayList<>(cards));
+    public List<Card> getCards() {
+        return this.cards;
     }
     
-    public Mono<List<Card>> getNewPlayerHand(Mono<Game> monoGame) {
+    public Mono<Game> getNewPlayerHand(Mono<Game> monoGame) {
         return monoGame.flatMap(game -> {
-            game.getPlayerHand().setNewCards(game);
-            return game.getPlayerHand().getCards();
+            List<Card> newCards = game.getPlayerHand().setNewCards(game);
+            game.getPlayerHand().setCards(newCards);
+            return Mono.just(game);
         });
     }
-    
+
     public void setCards(List<Card> cards) {
     	this.cards = cards;
     }

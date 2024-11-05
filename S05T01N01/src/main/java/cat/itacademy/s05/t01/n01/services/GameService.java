@@ -9,6 +9,7 @@ import cat.itacademy.s05.t01.n01.models.Card;
 import cat.itacademy.s05.t01.n01.models.Game;
 import cat.itacademy.s05.t01.n01.models.Player;
 import cat.itacademy.s05.t01.n01.repositories.GameRepository;
+import cat.itacademy.s05.t01.n01.repositories.PlayerRepository;
 import cat.itacademy.s05.t01.n01.exceptions.*;
 import reactor.core.publisher.Mono;
 
@@ -19,6 +20,9 @@ public class GameService {
 	private GameRepository gameRepository;
 	@Autowired
 	private PlayerService playerService;
+
+	@Autowired
+	private PlayerRepository playerRepository;
 
 	public Mono<Game> createNewGame(Mono<Player> savedPlayer) {
 		return savedPlayer.flatMap(player -> gameRepository.save(new Game(player)))
@@ -41,7 +45,7 @@ public class GameService {
 						case "close" -> gameClose(Mono.just(game)).doOnNext(g -> g.setIsRunning(false));
 						default -> Mono.error(new BadRequestException("Invalid play type"));
 						};
-					} else if (type.equalsIgnoreCase("start")) {
+					} else if ("start".equalsIgnoreCase(type)) {
 						game.setIsRunning(true);
 						return gameRepository.save(game);
 					} else {
@@ -51,16 +55,16 @@ public class GameService {
 	}
 
 	public Mono<Game> startGame(Mono<Game> gameMono) {
-		return gameMono.flatMap(game -> {
-			Mono<Void> playerHandUpdate = game.getPlayerHand().getNewPlayerHand(Mono.just(game))
-					.doOnNext(cards -> game.getPlayerHand().setCards(cards)).then();
-
-			Mono<Void> dealerHandUpdate = game.getDealerHand().getNewPlayerHand(Mono.just(game))
-					.doOnNext(cards -> game.getDealerHand().setCards(cards)).then();
-
-			return Mono.when(playerHandUpdate, dealerHandUpdate)
-					.then(Mono.defer(() -> checkForBlackjack(Mono.just(game)))).flatMap(gameRepository::save);
-		});
+		return gameMono.flatMap(game -> game.getPlayerHand().getNewPlayerHand(Mono.just(game)).doOnNext(cards -> {
+			game.getPlayerHand().setCards(game.getPlayerHand().getCards());
+			System.out.println("Cartas en Player Hand antes de guardar: " + cards);
+		}).then(game.getDealerHand().getNewPlayerHand(Mono.just(game)).doOnNext(cards -> {
+			game.getDealerHand().setCards(game.getDealerHand().getCards());
+			System.out.println("Cartas en Dealer Hand antes de guardar: " + cards);
+		})).then(Mono.defer(() -> checkForBlackjack(Mono.just(game)))).flatMap(updatedGame -> {
+			System.out.println("Game antes de guardar: " + updatedGame);
+			return gameRepository.save(updatedGame);
+		}));
 	}
 
 	private Mono<Game> checkForBlackjack(Mono<Game> gameMono) {
@@ -89,23 +93,19 @@ public class GameService {
 	}
 
 	public Mono<Game> playerHit(Mono<Game> gameMono) {
-		return gameMono.flatMap(game -> {
-			Card newCard = game.getDeck().drawCard();
-			game.getPlayerHand().addCard(newCard);
-			
+		return gameMono.flatMap(game -> game.getPlayerHand().addCard(game.getDeck().drawCard()).then(Mono.defer(() -> {
 			if (game.getPlayerHand().getScore() > 21) {
 				game.setLastResult("Player busts with " + game.getPlayerHand().getScore() + "! Dealer wins the round");
 				game.setIsRunning(false);
 			}
-
 			return gameRepository.save(game);
-		});
+		})));
 	}
 
 	public Mono<Game> playerStand(Mono<Game> gameMono) {
 		return gameMono.flatMap(game -> {
 			while (game.getDealerHand().getScore() < 17) {
-				game.getDealerHand().addCard(game.getDeck().drawCard());
+				game.getDealerHand().addCard(game.getDeck().drawCard()).block();
 			}
 
 			Mono<Void> dealerAction = Mono.defer(() -> {
@@ -136,8 +136,16 @@ public class GameService {
 
 	public Mono<Game> gameClose(Mono<Game> gameMono) {
 		return gameMono.flatMap(game -> {
+			if (game.getCurrentPoints() > game.getPlayer().getPlayerMaxPointsSync()) {
+				return playerRepository.findById(game.getPlayer().getPlayerId()).flatMap(updatePlayer -> {
+					playerService.updatePlayerMaxPoints(game.getPlayer().getPlayerId(),
+							Mono.just(game.getCurrentPoints()));
+					return gameRepository.save(game);
+				});
+			}
 			game.setIsRunning(false);
 			return gameRepository.save(game);
+
 		});
 	}
 
