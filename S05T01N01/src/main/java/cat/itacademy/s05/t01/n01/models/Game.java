@@ -103,9 +103,12 @@ public class Game {
 		this.currentPoints = currentPoints;
 	}
 	
-	public String toString() {
-		return gameId + "\n" + player.toString() + "\n" + playerHand.toString() + " [Score: " + playerHand.getScore() + "]\n Dealer Hand: " + dealerHand.toString();
-		
-	}
+	@Override
+    public String toString() {
+        return "Game ID: " + gameId + "\n" +
+               "Player: " + player + "\n" +
+               "Player Hand: " + playerHand + " [Score: " + playerHand.getScore() + "]\n" +
+               "Dealer Hand: " + dealerHand;
+    }
 
 }

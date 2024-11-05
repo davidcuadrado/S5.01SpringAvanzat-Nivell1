@@ -2,6 +2,7 @@ package cat.itacademy.s05.t01.n01.models;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class Deck {
 	private ArrayList<Card> cards;
@@ -33,5 +34,12 @@ public class Deck {
 	
 	public String toString() {
 		return cards.toString();
+	}
+	
+	public List<Card> giveNewPlayerHand(){
+		List<Card> newHand = new ArrayList<Card>();
+		newHand.add(drawCard());
+		newHand.add(drawCard());
+		return newHand;
 	}
 }

@@ -1,5 +1,6 @@
 package cat.itacademy.s05.t01.n01.services;
 
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +50,7 @@ public class GameService {
 							gameClose(Mono.just(game));
 						}
 
-						default -> Mono.error(new BadRequestException("Invalid play type input. "));
+						default -> Mono.error(new BadRequestException("They play type input is invalid. "));
 						}
 					} else if (game.getIsRunning() == false && type.equalsIgnoreCase("start")) {
 						game.setIsRunning(true);
@@ -65,16 +66,21 @@ public class GameService {
 
 	public Mono<Game> startGame(Mono<Game> gameMono) {
 	    return gameMono.flatMap(game -> {
-	        Mono<List<Card>> playerCards = game.getPlayerHand().addCard(game.getDeck().drawCard())
-	                .then(game.getPlayerHand().addCard(game.getDeck().drawCard()));
-	        Mono<List<Card>> dealerCards = game.getDealerHand().addCard(game.getDeck().drawCard())
-	                .then(game.getDealerHand().addCard(game.getDeck().drawCard()));
-	        
-	        return Mono.when(playerCards, dealerCards)
-	            .then(Mono.defer(() -> checkForBlackjack(Mono.just(game))))
-	            .flatMap(gameRepository::save);
+	        Mono<Void> playerHandUpdate = game.getPlayerHand().getNewPlayerHand(Mono.just(game))
+	                .doOnNext(cards -> game.getPlayerHand().setCards(cards))
+	                .then();
+
+	        Mono<Void> dealerHandUpdate = game.getDealerHand().getNewPlayerHand(Mono.just(game))
+	                .doOnNext(cards -> game.getDealerHand().setCards(cards))
+	                .then();
+
+	        return Mono.when(playerHandUpdate, dealerHandUpdate)
+	                .then(Mono.defer(() -> checkForBlackjack(Mono.just(game))))
+	                .flatMap(gameRepository::save);
 	    });
 	}
+
+
 
 	private Mono<Game> checkForBlackjack(Mono<Game> gameMono) {
 		return gameMono.flatMap(game -> Mono.defer(() -> {
@@ -102,45 +108,44 @@ public class GameService {
 	}
 
 	public Mono<Game> playerHit(Mono<Game> gameMono) {
-		return gameMono.flatMap(game -> {
-			game.getPlayerHand().addCard(game.getDeck().drawCard());
-
+		return gameMono.flatMap(game -> game.getPlayerHand().addCard(game.getDeck().drawCard()).then(Mono.defer(() -> {
 			if (game.getPlayerHand().getScore() > 21) {
 				game.setLastResult("Player busts with " + game.getPlayerHand().getScore() + "! Dealer wins the round");
 				game.setIsRunning(false);
-				return gameRepository.save(game);
 			}
-
 			return gameRepository.save(game);
-		});
+		})));
 	}
 
 	public Mono<Game> playerStand(Mono<Game> gameMono) {
 		return gameMono.flatMap(game -> {
-
 			while (game.getDealerHand().getScore() < 17) {
-				game.getDealerHand().addCard(game.getDeck().drawCard());
+				game.getDealerHand().addCard(game.getDeck().drawCard()).block();
 			}
 
-			if (game.getDealerHand().getScore() > 21) {
-				game.setLastResult("Dealer busts with " + game.getDealerHand().getScore() + "! Player wins the round.");
-				game.setCurrentPoints(game.getCurrentPoints() + 100);
-				game.setIsRunning(false);
-			} else if (game.getDealerHand().getScore() > game.getPlayerHand().getScore()) {
-				game.setLastResult("Dealer wins with " + +game.getDealerHand().getScore() + " against player's "
-						+ game.getPlayerHand().getScore() + " hand. ");
-				game.setCurrentPoints(game.getCurrentPoints() - 100);
-				game.setIsRunning(false);
-			} else if (game.getDealerHand().getScore() == game.getPlayerHand().getScore()) {
-				game.setLastResult("It's a tie! " + "Both hands are " + game.getPlayerHand().getScore());
-				game.setIsRunning(false);
-			} else {
-				game.setLastResult("Player wins with " + +game.getPlayerHand().getScore() + " against dealer's "
-						+ game.getDealerHand().getScore() + " hand. ");
-				game.setIsRunning(false);
-			}
+			Mono<Void> dealerAction = Mono.defer(() -> {
+				if (game.getDealerHand().getScore() > 21) {
+					game.setLastResult(
+							"Dealer busts with " + game.getDealerHand().getScore() + "! Player wins the round.");
+					game.setCurrentPoints(game.getCurrentPoints() + 100);
+					game.setIsRunning(false);
+				} else if (game.getDealerHand().getScore() > game.getPlayerHand().getScore()) {
+					game.setLastResult("Dealer wins with " + game.getDealerHand().getScore() + " against player's "
+							+ game.getPlayerHand().getScore());
+					game.setCurrentPoints(game.getCurrentPoints() - 100);
+					game.setIsRunning(false);
+				} else if (game.getDealerHand().getScore() == game.getPlayerHand().getScore()) {
+					game.setLastResult("It's a tie! Both hands are " + game.getPlayerHand().getScore());
+					game.setIsRunning(false);
+				} else {
+					game.setLastResult("Player wins with " + game.getPlayerHand().getScore() + " against dealer's "
+							+ game.getDealerHand().getScore());
+					game.setIsRunning(false);
+				}
+				return Mono.empty();
+			});
 
-			return gameRepository.save(game);
+			return dealerAction.then(gameRepository.save(game));
 		});
 	}
 
