@@ -36,10 +36,13 @@ public class Deck {
 		return cards.toString();
 	}
 	
-	public List<Card> giveNewPlayerHand(){
-		List<Card> newHand = new ArrayList<Card>();
-		newHand.add(drawCard());
-		newHand.add(drawCard());
-		return newHand;
+	public List<Card> giveNewPlayerHand() {
+	    if (cards.size() < 48) {
+	        new Deck();
+	    }
+	    List<Card> newHand = new ArrayList<>();
+	    newHand.add(drawCard());
+	    newHand.add(drawCard());
+	    return newHand;
 	}
 }

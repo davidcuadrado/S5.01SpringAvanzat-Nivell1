@@ -1,5 +1,7 @@
 package cat.itacademy.s05.t01.n01.services;
 
+
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,54 +44,55 @@ public class GameService {
 						return switch (type.toLowerCase()) {
 						case "hit" -> playerHit(Mono.just(game));
 						case "stand" -> playerStand(Mono.just(game));
-						case "close" -> gameClose(Mono.just(game)).doOnNext(g -> g.setIsRunning(false));
+						case "close" -> gameClose(Mono.just(game));
 						default -> Mono.error(new BadRequestException("Invalid play type"));
 						};
 					} else if ("start".equalsIgnoreCase(type)) {
 						game.setIsRunning(true);
+						startGame(Mono.just(game));
 						return gameRepository.save(game);
 					} else {
 						return Mono.error(new IllegalArgumentException("Game is not running"));
 					}
 				}));
 	}
-
+	
 	public Mono<Game> startGame(Mono<Game> gameMono) {
-		return gameMono.flatMap(game -> game.getPlayerHand().getNewPlayerHand(Mono.just(game)).doOnNext(cards -> {
-			game.getPlayerHand().setCards(game.getPlayerHand().getCards());
-			System.out.println("Cartas en Player Hand antes de guardar: " + cards);
-		}).then(game.getDealerHand().getNewPlayerHand(Mono.just(game)).doOnNext(cards -> {
-			game.getDealerHand().setCards(game.getDealerHand().getCards());
-			System.out.println("Cartas en Dealer Hand antes de guardar: " + cards);
-		})).then(Mono.defer(() -> checkForBlackjack(Mono.just(game)))).flatMap(updatedGame -> {
-			System.out.println("Game antes de guardar: " + updatedGame);
-			return gameRepository.save(updatedGame);
-		}));
-	}
+		return gameMono.flatMap(game -> {
+			Mono<Void> playerCards = game.getPlayerHand().addCard(game.getDeck().drawCard())
+					.then(game.getPlayerHand().addCard(game.getDeck().drawCard()));
 
-	private Mono<Game> checkForBlackjack(Mono<Game> gameMono) {
-		return gameMono.flatMap(game -> Mono.defer(() -> {
+			Mono<Void> dealerCards = game.getDealerHand().addCard(game.getDeck().drawCard())
+					.then(game.getDealerHand().addCard(game.getDeck().drawCard()));
+			return Mono.when(playerCards, dealerCards).then(checkForBlackjackAndSetResult(game))
+					.flatMap(gameRepository::save).thenReturn(game);
+		});
+	}
+	
+
+	private Mono<Game> checkForBlackjackAndSetResult(Game game) {
+		return Mono.defer(() -> {
 			boolean playerHasBlackjack = game.getPlayerHand().getScore() == 21;
 			boolean dealerHasBlackjack = game.getDealerHand().getScore() == 21;
 
 			if (playerHasBlackjack && dealerHasBlackjack) {
-				game.setLastResult("Draw: player and dealer both have a BLackjack! ");
+				game.setLastResult("Draw: both have Blackjack! ");
 				game.setIsRunning(false);
 			} else if (playerHasBlackjack) {
-				game.setLastResult("Player wins with Blackjack!");
+				game.setLastResult("Player wins with Blackjack! ");
 				game.setCurrentPoints(game.getCurrentPoints() + 150);
 				game.setIsRunning(false);
 			} else if (dealerHasBlackjack) {
-				game.setLastResult("Dealer wins with Blackjack.");
+				game.setLastResult("Dealer wins with Blackjack. ");
 				game.setCurrentPoints(game.getCurrentPoints() - 100);
 				game.setIsRunning(false);
 			} else {
 				game.setIsRunning(true);
-				game.setLastResult("Select your next action.");
+				game.setLastResult("Game is ready to continue. ");
 			}
 
 			return Mono.just(game);
-		}));
+		});
 	}
 
 	public Mono<Game> playerHit(Mono<Game> gameMono) {
