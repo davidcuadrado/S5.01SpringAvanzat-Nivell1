@@ -1,11 +1,9 @@
 package cat.itacademy.s05.t01.n01.services;
 
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import cat.itacademy.s05.t01.n01.models.Card;
 import cat.itacademy.s05.t01.n01.models.Game;
 import cat.itacademy.s05.t01.n01.models.Player;
 import cat.itacademy.s05.t01.n01.repositories.GameRepository;
@@ -42,8 +40,7 @@ public class GameService {
 					return Mono.error(new BadRequestException("Invalid play type. Game is already started. "));
 				} else {
 					game.setIsRunning(true);
-					return startGame(Mono.just(game)) // Iniciar el juego
-							.flatMap(gameRepository::save);
+					return startGame(Mono.just(game)).flatMap(gameRepository::save);
 				}
 			case "hit":
 				if (game.getIsRunning()) {
@@ -77,14 +74,16 @@ public class GameService {
 
 	public Mono<Game> startGame(Mono<Game> gameMono) {
 		return gameMono.flatMap(game -> {
-			Mono<Void> playerCards = game.getPlayerHand().addCard(game.getDeck().drawCard())
+			Mono<Void> playerCards = game.getPlayerHand().resetHand();
+					playerCards = game.getPlayerHand().addCard(game.getDeck().drawCard())
 					.then(game.getPlayerHand().addCard(game.getDeck().drawCard()));
 
-			Mono<Void> dealerCards = game.getDealerHand().addCard(game.getDeck().drawCard())
+			Mono<Void> dealerCards = game.getDealerHand().resetHand();
+					dealerCards = game.getDealerHand().addCard(game.getDeck().drawCard())
 					.then(game.getDealerHand().addCard(game.getDeck().drawCard()));
 
 			return Mono.zip(playerCards, dealerCards).then(checkForBlackjackAndSetResult(game))
-					.flatMap(updatedGame -> gameRepository.save(updatedGame)).thenReturn(game);
+					.flatMap(gameRepository::save);
 		});
 	}
 
