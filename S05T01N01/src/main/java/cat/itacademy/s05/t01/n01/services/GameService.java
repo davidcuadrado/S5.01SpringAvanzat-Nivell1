@@ -1,11 +1,15 @@
 package cat.itacademy.s05.t01.n01.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import cat.itacademy.s05.t01.n01.models.Card;
 import cat.itacademy.s05.t01.n01.models.Game;
 import cat.itacademy.s05.t01.n01.models.Player;
 import cat.itacademy.s05.t01.n01.repositories.GameRepository;
+import cat.itacademy.s05.t01.n01.repositories.PlayerRepository;
 import cat.itacademy.s05.t01.n01.exceptions.*;
 import reactor.core.publisher.Mono;
 
@@ -16,6 +20,9 @@ public class GameService {
 	private GameRepository gameRepository;
 	@Autowired
 	private PlayerService playerService;
+
+	@Autowired
+	private PlayerRepository playerRepository;
 
 	public Mono<Game> createNewGame(Mono<Player> savedPlayer) {
 		return savedPlayer.flatMap(player -> gameRepository.save(new Game(player)))
@@ -34,10 +41,13 @@ public class GameService {
 
 					if (game.getIsRunning() == true) {
 						switch (type) {
-						case "start" -> startGame(Mono.just(game));
+						case "start" -> Mono.error(new IllegalArgumentException("Game is already running"));
 						case "hit" -> playerHit(Mono.just(game));
 						case "stand" -> playerStand(Mono.just(game));
-						case "close" -> gameClose(Mono.just(game));
+						case "close" -> {
+							game.setIsRunning(false);
+							gameClose(Mono.just(game));
+						}
 
 						default -> Mono.error(new BadRequestException("Invalid play type input. "));
 						}
@@ -53,49 +63,42 @@ public class GameService {
 				})).onErrorMap(e -> new DatabaseException("Unable to save progress. "));
 	}
 
-	public Mono<Game> deleteGameById(Mono<String> gameId) {
-		return gameId.flatMap(id -> gameRepository.findById(id))
-				.switchIfEmpty(Mono.error(new NotFoundException("Game ID: " + gameId + " not found.")))
-				.flatMap(existingGame -> gameRepository.delete(existingGame).then(Mono.just(existingGame)));
-	}
-
 	public Mono<Game> startGame(Mono<Game> gameMono) {
 	    return gameMono.flatMap(game -> {
-	        Mono<Void> playerCards = game.getPlayerHand().addCard(game.getDeck().drawCard())
+	        Mono<List<Card>> playerCards = game.getPlayerHand().addCard(game.getDeck().drawCard())
 	                .then(game.getPlayerHand().addCard(game.getDeck().drawCard()));
-
-	        Mono<Void> dealerCards = game.getDealerHand().addCard(game.getDeck().drawCard())
+	        Mono<List<Card>> dealerCards = game.getDealerHand().addCard(game.getDeck().drawCard())
 	                .then(game.getDealerHand().addCard(game.getDeck().drawCard()));
-
+	        
 	        return Mono.when(playerCards, dealerCards)
-	                .then(checkForBlackjack(Mono.just(game)))
-	                .flatMap(gameRepository::save);
+	            .then(Mono.defer(() -> checkForBlackjack(Mono.just(game))))
+	            .flatMap(gameRepository::save);
 	    });
 	}
 
 	private Mono<Game> checkForBlackjack(Mono<Game> gameMono) {
-	    return gameMono.flatMap(game -> Mono.defer(() -> {
-	        boolean playerHasBlackjack = game.getPlayerHand().getScore() == 21;
-	        boolean dealerHasBlackjack = game.getDealerHand().getScore() == 21;
+		return gameMono.flatMap(game -> Mono.defer(() -> {
+			boolean playerHasBlackjack = game.getPlayerHand().getScore() == 21;
+			boolean dealerHasBlackjack = game.getDealerHand().getScore() == 21;
 
-	        if (playerHasBlackjack && dealerHasBlackjack) {
-	            game.setLastResult("Draw: player and dealer both have a BLackjack! ");
-	            game.setIsRunning(false);
-	        } else if (playerHasBlackjack) {
-	            game.setLastResult("Player wins with Blackjack!");
-	            game.setCurrentPoints(game.getCurrentPoints() + 150);
-	            game.setIsRunning(false);
-	        } else if (dealerHasBlackjack) {
-	            game.setLastResult("Dealer wins with Blackjack.");
-	            game.setCurrentPoints(game.getCurrentPoints() - 100);
-	            game.setIsRunning(false);
-	        } else {
-	            game.setIsRunning(true);
-	            game.setLastResult("Select your next action.");
-	        }
+			if (playerHasBlackjack && dealerHasBlackjack) {
+				game.setLastResult("Draw: player and dealer both have a BLackjack! ");
+				game.setIsRunning(false);
+			} else if (playerHasBlackjack) {
+				game.setLastResult("Player wins with Blackjack!");
+				game.setCurrentPoints(game.getCurrentPoints() + 150);
+				game.setIsRunning(false);
+			} else if (dealerHasBlackjack) {
+				game.setLastResult("Dealer wins with Blackjack.");
+				game.setCurrentPoints(game.getCurrentPoints() - 100);
+				game.setIsRunning(false);
+			} else {
+				game.setIsRunning(true);
+				game.setLastResult("Select your next action.");
+			}
 
-	        return Mono.just(game);
-	    }));
+			return Mono.just(game);
+		}));
 	}
 
 	public Mono<Game> playerHit(Mono<Game> gameMono) {
@@ -144,18 +147,22 @@ public class GameService {
 	public Mono<Game> gameClose(Mono<Game> gameMono) {
 		return gameMono.flatMap(game -> {
 			if (game.getCurrentPoints() > game.getPlayer().getPlayerMaxPointsSync()) {
-				return playerService
-						.updatePlayerMaxPoints(game.getPlayer().getPlayerId(), Mono.just(game.getCurrentPoints()))
-						.flatMap(updatedPlayer -> {
-							game.getPlayer().setPlayerMaxPoints(game.getCurrentPoints());
-							game.setIsRunning(false);
-							return gameRepository.save(game);
-						});
-			} else {
-				game.setIsRunning(false);
-				return gameRepository.save(game);
+				return playerRepository.findById(game.getPlayer().getPlayerId()).flatMap(updatePlayer -> {
+					playerService.updatePlayerMaxPoints(game.getPlayer().getPlayerId(),
+							Mono.just(game.getCurrentPoints()));
+					return gameRepository.save(game);
+				});
 			}
+			game.setIsRunning(false);
+			return gameRepository.save(game);
+
 		});
+	}
+
+	public Mono<Game> deleteGameById(Mono<String> gameId) {
+		return gameId.flatMap(id -> gameRepository.findById(id))
+				.switchIfEmpty(Mono.error(new NotFoundException("Game ID: " + gameId + " not found.")))
+				.flatMap(existingGame -> gameRepository.delete(existingGame).then(Mono.just(existingGame)));
 	}
 
 }

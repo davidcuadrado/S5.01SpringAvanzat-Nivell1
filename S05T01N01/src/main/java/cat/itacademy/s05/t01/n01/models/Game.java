@@ -102,5 +102,10 @@ public class Game {
 	public void setCurrentPoints(int currentPoints) {
 		this.currentPoints = currentPoints;
 	}
+	
+	public String toString() {
+		return gameId + "\n" + player.toString() + "\n" + playerHand.toString() + " [Score: " + playerHand.getScore() + "]\n Dealer Hand: " + dealerHand.toString();
+		
+	}
 
 }

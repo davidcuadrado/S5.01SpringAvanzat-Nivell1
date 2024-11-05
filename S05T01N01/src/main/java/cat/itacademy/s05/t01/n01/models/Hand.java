@@ -12,7 +12,7 @@ public class Hand {
 		this.cards = new ArrayList<>();
 	}
 
-	public Mono<Void> addCard(Card card) {
+	public Mono<List<Card>> addCard(Card card) {
 		return Mono.fromRunnable(() -> cards.add(card));
 	}
 
@@ -39,6 +39,10 @@ public class Hand {
 
 	public Mono<List<Card>> getCards() {
 		return Mono.just(cards);
+	}
+	
+	public String toString() {
+		return cards.toString()	;
 	}
 
 }
