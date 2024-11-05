@@ -1,7 +1,5 @@
 package cat.itacademy.s05.t01.n01.services;
 
-
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,26 +35,46 @@ public class GameService {
 	}
 
 	public Mono<Game> nextPlayType(Mono<String> gameId, Mono<String> playType) {
-		return gameId.flatMap(id -> gameRepository.findById(id))
-				.switchIfEmpty(Mono.error(new NotFoundException("Game not found")))
-				.flatMap(game -> playType.flatMap(type -> {
-					if (game.getIsRunning()) {
-						return switch (type.toLowerCase()) {
-						case "hit" -> playerHit(Mono.just(game));
-						case "stand" -> playerStand(Mono.just(game));
-						case "close" -> gameClose(Mono.just(game));
-						default -> Mono.error(new BadRequestException("Invalid play type"));
-						};
-					} else if ("start".equalsIgnoreCase(type)) {
-						game.setIsRunning(true);
-						startGame(Mono.just(game));
-						return gameRepository.save(game);
-					} else {
-						return Mono.error(new IllegalArgumentException("Game is not running"));
-					}
-				}));
+		return gameId.flatMap(id -> gameRepository.findById(id).flatMap(game -> playType.flatMap(type -> {
+			switch (type.toLowerCase()) {
+			case "start":
+				if (game.getIsRunning()) {
+					return Mono.error(new BadRequestException("Invalid play type. Game is already started. "));
+				} else {
+					game.setIsRunning(true);
+					return startGame(Mono.just(game)) // Iniciar el juego
+							.flatMap(gameRepository::save);
+				}
+			case "hit":
+				if (game.getIsRunning()) {
+					return playerHit(Mono.just(game)).flatMap(gameRepository::save);
+				} else {
+					return Mono.error(new BadRequestException(
+							"Invalid play type. Game is closed, start the game before making a move. "));
+				}
+			case "stand":
+				if (game.getIsRunning()) {
+					game.setIsRunning(false);
+					return playerStand(Mono.just(game)).flatMap(gameRepository::save);
+				} else {
+					return Mono.error(new BadRequestException(
+							"Invalid play type. Game is close, start the game before making a move.  "));
+				}
+			case "close":
+				if (game.getIsRunning()) {
+					game.setIsRunning(false);
+					return gameClose(Mono.just(game)).flatMap(gameRepository::save);
+				} else {
+					return Mono.error(new BadRequestException("Invalid play type. Game is already closed. "));
+				}
+
+			default:
+				return Mono
+						.error(new IllegalArgumentException("Invalid play type. Try introducing a proper play type."));
+			}
+		})).switchIfEmpty(Mono.error(new NotFoundException("Game ID: " + id + " not found."))));
 	}
-	
+
 	public Mono<Game> startGame(Mono<Game> gameMono) {
 		return gameMono.flatMap(game -> {
 			Mono<Void> playerCards = game.getPlayerHand().addCard(game.getDeck().drawCard())
@@ -64,11 +82,11 @@ public class GameService {
 
 			Mono<Void> dealerCards = game.getDealerHand().addCard(game.getDeck().drawCard())
 					.then(game.getDealerHand().addCard(game.getDeck().drawCard()));
-			return Mono.when(playerCards, dealerCards).then(checkForBlackjackAndSetResult(game))
-					.flatMap(gameRepository::save).thenReturn(game);
+
+			return Mono.zip(playerCards, dealerCards).then(checkForBlackjackAndSetResult(game))
+					.flatMap(updatedGame -> gameRepository.save(updatedGame)).thenReturn(game);
 		});
 	}
-	
 
 	private Mono<Game> checkForBlackjackAndSetResult(Game game) {
 		return Mono.defer(() -> {

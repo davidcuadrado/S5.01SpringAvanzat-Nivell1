@@ -49,8 +49,16 @@ public class Hand {
     
     public Mono<Game> getNewPlayerHand(Mono<Game> monoGame) {
         return monoGame.flatMap(game -> {
-            List<Card> newCards = game.getPlayerHand().setNewCards(game);
+            List<Card> newCards = game.getPlayerHand().setNewPlayerCards(game);
             game.getPlayerHand().setCards(newCards);
+            return Mono.just(game);
+        });
+    }
+    
+    public Mono<Game> getNewDealerHand(Mono<Game> monoGame) {
+        return monoGame.flatMap(game -> {
+            List<Card> newCards = game.getDealerHand().setNewDealerCards(game);
+            game.getDealerHand().setCards(newCards);
             return Mono.just(game);
         });
     }
@@ -59,8 +67,12 @@ public class Hand {
     	this.cards = cards;
     }
     
-    public List<Card> setNewCards(Game game) {
-    	return game.getDeck().giveNewPlayerHand();
+    public List<Card> setNewPlayerCards(Game game) {
+    	return game.getDeck().giveNewHand();
+    }
+    
+    public List<Card> setNewDealerCards(Game game) {
+    	return game.getDeck().giveNewHand();
     }
 
     @Override

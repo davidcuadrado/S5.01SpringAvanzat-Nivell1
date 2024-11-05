@@ -36,7 +36,7 @@ public class Deck {
 		return cards.toString();
 	}
 	
-	public List<Card> giveNewPlayerHand() {
+	public List<Card> giveNewHand() {
 	    if (cards.size() < 48) {
 	        new Deck();
 	    }
