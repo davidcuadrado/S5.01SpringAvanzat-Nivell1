@@ -1,6 +1,5 @@
 package cat.itacademy.s05.t01.n01.services;
 
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,6 @@ import cat.itacademy.s05.t01.n01.models.Card;
 import cat.itacademy.s05.t01.n01.models.Game;
 import cat.itacademy.s05.t01.n01.models.Player;
 import cat.itacademy.s05.t01.n01.repositories.GameRepository;
-import cat.itacademy.s05.t01.n01.repositories.PlayerRepository;
 import cat.itacademy.s05.t01.n01.exceptions.*;
 import reactor.core.publisher.Mono;
 
@@ -21,9 +19,6 @@ public class GameService {
 	private GameRepository gameRepository;
 	@Autowired
 	private PlayerService playerService;
-
-	@Autowired
-	private PlayerRepository playerRepository;
 
 	public Mono<Game> createNewGame(Mono<Player> savedPlayer) {
 		return savedPlayer.flatMap(player -> gameRepository.save(new Game(player)))
@@ -37,50 +32,36 @@ public class GameService {
 
 	public Mono<Game> nextPlayType(Mono<String> gameId, Mono<String> playType) {
 		return gameId.flatMap(id -> gameRepository.findById(id))
-				.switchIfEmpty(Mono.error(new NotFoundException("Game ID: " + gameId + " not found.")))
+				.switchIfEmpty(Mono.error(new NotFoundException("Game not found")))
 				.flatMap(game -> playType.flatMap(type -> {
-
-					if (game.getIsRunning() == true) {
-						switch (type) {
-						case "start" -> Mono.error(new IllegalArgumentException("Game is already running"));
+					if (game.getIsRunning()) {
+						return switch (type.toLowerCase()) {
 						case "hit" -> playerHit(Mono.just(game));
 						case "stand" -> playerStand(Mono.just(game));
-						case "close" -> {
-							game.setIsRunning(false);
-							gameClose(Mono.just(game));
-						}
-
-						default -> Mono.error(new BadRequestException("They play type input is invalid. "));
-						}
-					} else if (game.getIsRunning() == false && type.equalsIgnoreCase("start")) {
+						case "close" -> gameClose(Mono.just(game)).doOnNext(g -> g.setIsRunning(false));
+						default -> Mono.error(new BadRequestException("Invalid play type"));
+						};
+					} else if (type.equalsIgnoreCase("start")) {
 						game.setIsRunning(true);
-						startGame(Mono.just(game));
-
+						return gameRepository.save(game);
 					} else {
-						Mono.error(new BadRequestException("Game has not been started. Start the game to play. "));
+						return Mono.error(new IllegalArgumentException("Game is not running"));
 					}
-
-					return gameRepository.save(game);
-				})).onErrorMap(e -> new DatabaseException("Unable to save progress. "));
+				}));
 	}
 
 	public Mono<Game> startGame(Mono<Game> gameMono) {
-	    return gameMono.flatMap(game -> {
-	        Mono<Void> playerHandUpdate = game.getPlayerHand().getNewPlayerHand(Mono.just(game))
-	                .doOnNext(cards -> game.getPlayerHand().setCards(cards))
-	                .then();
+		return gameMono.flatMap(game -> {
+			Mono<Void> playerHandUpdate = game.getPlayerHand().getNewPlayerHand(Mono.just(game))
+					.doOnNext(cards -> game.getPlayerHand().setCards(cards)).then();
 
-	        Mono<Void> dealerHandUpdate = game.getDealerHand().getNewPlayerHand(Mono.just(game))
-	                .doOnNext(cards -> game.getDealerHand().setCards(cards))
-	                .then();
+			Mono<Void> dealerHandUpdate = game.getDealerHand().getNewPlayerHand(Mono.just(game))
+					.doOnNext(cards -> game.getDealerHand().setCards(cards)).then();
 
-	        return Mono.when(playerHandUpdate, dealerHandUpdate)
-	                .then(Mono.defer(() -> checkForBlackjack(Mono.just(game))))
-	                .flatMap(gameRepository::save);
-	    });
+			return Mono.when(playerHandUpdate, dealerHandUpdate)
+					.then(Mono.defer(() -> checkForBlackjack(Mono.just(game)))).flatMap(gameRepository::save);
+		});
 	}
-
-
 
 	private Mono<Game> checkForBlackjack(Mono<Game> gameMono) {
 		return gameMono.flatMap(game -> Mono.defer(() -> {
@@ -108,19 +89,23 @@ public class GameService {
 	}
 
 	public Mono<Game> playerHit(Mono<Game> gameMono) {
-		return gameMono.flatMap(game -> game.getPlayerHand().addCard(game.getDeck().drawCard()).then(Mono.defer(() -> {
+		return gameMono.flatMap(game -> {
+			Card newCard = game.getDeck().drawCard();
+			game.getPlayerHand().addCard(newCard);
+			
 			if (game.getPlayerHand().getScore() > 21) {
 				game.setLastResult("Player busts with " + game.getPlayerHand().getScore() + "! Dealer wins the round");
 				game.setIsRunning(false);
 			}
+
 			return gameRepository.save(game);
-		})));
+		});
 	}
 
 	public Mono<Game> playerStand(Mono<Game> gameMono) {
 		return gameMono.flatMap(game -> {
 			while (game.getDealerHand().getScore() < 17) {
-				game.getDealerHand().addCard(game.getDeck().drawCard()).block();
+				game.getDealerHand().addCard(game.getDeck().drawCard());
 			}
 
 			Mono<Void> dealerAction = Mono.defer(() -> {
@@ -151,16 +136,8 @@ public class GameService {
 
 	public Mono<Game> gameClose(Mono<Game> gameMono) {
 		return gameMono.flatMap(game -> {
-			if (game.getCurrentPoints() > game.getPlayer().getPlayerMaxPointsSync()) {
-				return playerRepository.findById(game.getPlayer().getPlayerId()).flatMap(updatePlayer -> {
-					playerService.updatePlayerMaxPoints(game.getPlayer().getPlayerId(),
-							Mono.just(game.getCurrentPoints()));
-					return gameRepository.save(game);
-				});
-			}
 			game.setIsRunning(false);
 			return gameRepository.save(game);
-
 		});
 	}
 
