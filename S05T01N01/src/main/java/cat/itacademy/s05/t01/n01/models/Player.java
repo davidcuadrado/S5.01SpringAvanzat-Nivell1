@@ -22,21 +22,28 @@ public class Player {
 	public Player() {
 	}
 
-	public int getPlayerIdNum() {
-		return this.playerId;
-	}
-
 	public Player(String playerName) {
 		this.playerName = playerName;
 		this.maxPoints = 1000;
 	}
-
+	
+	
 	public String getPlayerName() {
 		return this.playerName;
 	}
 
 	public void setPlayerName(String playerName) {
 		this.playerName = playerName;
+	}
+	
+	public int getMaxPoints() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public void setMaxPoints(int currentPoints) {
+		this.maxPoints = currentPoints;
+		
 	}
 
 	public Mono<String> getPlayerNameMono() {
@@ -55,8 +62,10 @@ public class Player {
 		return Mono.fromRunnable(() -> this.playerId = playerId);
 	}
 
-	public void setPlayerMaxPoints(int maxPoints) {
-		this.maxPoints = maxPoints;
+	public void setPlayerMaxPoints(int points) {
+		if (points > this.maxPoints) {
+			this.maxPoints = points;
+		}
 	}
 
 	public Mono<Integer> getPlayerMaxPoints() {
@@ -70,5 +79,7 @@ public class Player {
 	public String toString() {
 		return this.playerId + " | " + this.playerName + " | " + this.maxPoints;
 	}
+
+	
 
 }

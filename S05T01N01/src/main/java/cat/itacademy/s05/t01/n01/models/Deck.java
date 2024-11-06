@@ -37,7 +37,7 @@ public class Deck {
 	}
 	
 	public List<Card> giveNewHand() {
-	    if (cards.size() < 48) {
+	    if (cards.size() < 24) {
 	        new Deck();
 	    }
 	    List<Card> newHand = new ArrayList<>();

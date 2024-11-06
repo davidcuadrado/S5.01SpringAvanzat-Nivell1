@@ -1,6 +1,5 @@
 package cat.itacademy.s05.t01.n01.services;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,12 +57,8 @@ public class GameService {
 							"Invalid play type. Game is close, start the game before making a move.  "));
 				}
 			case "close":
-				if (game.getIsRunning()) {
-					game.setIsRunning(false);
-					return gameClose(Mono.just(game)).flatMap(gameRepository::save);
-				} else {
-					return Mono.error(new BadRequestException("Invalid play type. Game is already closed. "));
-				}
+				game.setIsRunning(false);
+				return gameClose(Mono.just(game)).flatMap(gameRepository::save);
 
 			default:
 				return Mono
@@ -74,12 +69,16 @@ public class GameService {
 
 	public Mono<Game> startGame(Mono<Game> gameMono) {
 		return gameMono.flatMap(game -> {
+			if (game.getDeck().getCards().size() < 20) {
+				game.setNewDeck();
+			}
 			Mono<Void> playerCards = game.getPlayerHand().resetHand();
-					playerCards = game.getPlayerHand().addCard(game.getDeck().drawCard())
+			playerCards = game.getPlayerHand().addCard(game.getDeck().drawCard())
 					.then(game.getPlayerHand().addCard(game.getDeck().drawCard()));
+			gameRepository.save(game);
 
 			Mono<Void> dealerCards = game.getDealerHand().resetHand();
-					dealerCards = game.getDealerHand().addCard(game.getDeck().drawCard())
+			dealerCards = game.getDealerHand().addCard(game.getDeck().drawCard())
 					.then(game.getDealerHand().addCard(game.getDeck().drawCard()));
 
 			return Mono.zip(playerCards, dealerCards).then(checkForBlackjackAndSetResult(game))
@@ -155,18 +154,21 @@ public class GameService {
 	}
 
 	public Mono<Game> gameClose(Mono<Game> gameMono) {
-		return gameMono.flatMap(game -> {
-			if (game.getCurrentPoints() > game.getPlayer().getPlayerMaxPointsSync()) {
-				return playerRepository.findById(game.getPlayer().getPlayerId()).flatMap(updatePlayer -> {
-					playerService.updatePlayerMaxPoints(game.getPlayer().getPlayerId(),
-							Mono.just(game.getCurrentPoints()));
-					return gameRepository.save(game);
-				});
-			}
-			game.setIsRunning(false);
-			return gameRepository.save(game);
-
-		});
+	    return gameMono.flatMap(game -> {
+	        return playerRepository.findById(game.getPlayer().getPlayerId())
+	            .flatMap(player -> {
+	                if (game.getCurrentPoints() > player.getMaxPoints()) {
+	                    player.setMaxPoints(game.getCurrentPoints());
+	                    return playerRepository.save(player)
+	                        .thenReturn(game);
+	                }
+	                return Mono.just(game);
+	            })
+	            .flatMap(updatedGame -> {
+	                updatedGame.setIsRunning(false);
+	                return gameRepository.save(updatedGame);
+	            });
+	    });
 	}
 
 	public Mono<Game> deleteGameById(Mono<String> gameId) {
