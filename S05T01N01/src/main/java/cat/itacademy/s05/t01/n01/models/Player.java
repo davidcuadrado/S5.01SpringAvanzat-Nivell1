@@ -27,7 +27,10 @@ public class Player {
 		this.maxPoints = 1000;
 	}
 	
-	
+	public int getPlayerIdNum() {
+		return this.playerId;
+	}
+
 	public String getPlayerName() {
 		return this.playerName;
 	}
@@ -37,8 +40,7 @@ public class Player {
 	}
 	
 	public int getMaxPoints() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.maxPoints;
 	}
 
 	public void setMaxPoints(int currentPoints) {
