@@ -69,11 +69,11 @@ public class GameService {
 			if (game.getDeck().getCards().size() < 20) {
 				game.setNewDeck();
 			}
-			Mono<Void> playerCards = startPlayerCards(game);
+			Mono<Void> playersCards = startPlayerCards(game).then(startDealerCards(game));
 
 			Mono<Void> dealerCards = startDealerCards(game);
 
-			return Mono.zip(playerCards, dealerCards).then(checkForBlackjackAndSetResult(game))
+			return Mono.zip(playersCards, dealerCards).then(checkForBlackjackAndSetResult(game))
 					.flatMap(gameRepository::save);
 		});
 	}
