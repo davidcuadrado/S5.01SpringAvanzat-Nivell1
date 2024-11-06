@@ -21,7 +21,7 @@ public class GameService {
 
 	public Mono<Game> createNewGame(Mono<Player> savedPlayer) {
 		return savedPlayer.flatMap(player -> gameRepository.save(new Game(player)))
-				.onErrorMap(e -> new DatabaseException("An error happend while creting new game"));
+				.onErrorMap(e -> new DatabaseException("An error happend while creating new game"));
 	}
 
 	public Mono<Game> getGameById(Mono<String> gameId) {
