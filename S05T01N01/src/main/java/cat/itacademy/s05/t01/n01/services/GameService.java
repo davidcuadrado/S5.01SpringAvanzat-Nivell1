@@ -48,7 +48,6 @@ public class GameService {
 				}
 			case "stand":
 				if (game.getIsRunning()) {
-					game.setIsRunning(false);
 					return playerStand(Mono.just(game)).flatMap(gameRepository::save);
 				} else {
 					return Mono.error(new BadRequestException(
@@ -70,13 +69,12 @@ public class GameService {
 			if (game.getDeck().getCards().size() < 20) {
 				game.setNewDeck();
 			}
-			Mono<Void> playerCards = game.getPlayerHand().resetHand();
-			playerCards = game.getPlayerHand().addCard(game.getDeck().drawCard())
+			Mono<Void> playerCards = game.getPlayerHand().resetHand()
+					.then(game.getPlayerHand().addCard(game.getDeck().drawCard()))
 					.then(game.getPlayerHand().addCard(game.getDeck().drawCard()));
-			gameRepository.save(game);
 
-			Mono<Void> dealerCards = game.getDealerHand().resetHand();
-			dealerCards = game.getDealerHand().addCard(game.getDeck().drawCard())
+			Mono<Void> dealerCards = game.getDealerHand().resetHand()
+					.then(game.getDealerHand().addCard(game.getDeck().drawCard()))
 					.then(game.getDealerHand().addCard(game.getDeck().drawCard()));
 
 			return Mono.zip(playerCards, dealerCards).then(checkForBlackjackAndSetResult(game))
@@ -94,7 +92,7 @@ public class GameService {
 				game.setIsRunning(false);
 			} else if (playerHasBlackjack) {
 				game.setLastResult("Player wins with Blackjack! ");
-				game.setCurrentPoints(game.getCurrentPoints() + 150);
+				game.setCurrentPoints(game.getCurrentPoints() + 100);
 				game.setIsRunning(false);
 			} else if (dealerHasBlackjack) {
 				game.setLastResult("Dealer wins with Blackjack. ");
@@ -104,8 +102,9 @@ public class GameService {
 				game.setIsRunning(true);
 				game.setLastResult("Game is ready to continue. ");
 			}
+			
 
-			return Mono.just(game);
+			return gameRepository.save(game);
 		});
 	}
 
@@ -114,6 +113,7 @@ public class GameService {
 			if (game.getPlayerHand().getScore() > 21) {
 				game.setLastResult("Player busts with " + game.getPlayerHand().getScore() + "! Dealer wins the round");
 				game.setIsRunning(false);
+				game.updateCurrentPoints(-100);
 			}
 			return gameRepository.save(game);
 		})));
@@ -129,21 +129,19 @@ public class GameService {
 				if (game.getDealerHand().getScore() > 21) {
 					game.setLastResult(
 							"Dealer busts with " + game.getDealerHand().getScore() + "! Player wins the round.");
-					game.setCurrentPoints(game.getCurrentPoints() + 100);
-					game.setIsRunning(false);
+					game.updateCurrentPoints(100);
 				} else if (game.getDealerHand().getScore() > game.getPlayerHand().getScore()) {
 					game.setLastResult("Dealer wins with " + game.getDealerHand().getScore() + " against player's "
 							+ game.getPlayerHand().getScore());
-					game.setCurrentPoints(game.getCurrentPoints() - 100);
-					game.setIsRunning(false);
+					game.updateCurrentPoints(-100);
 				} else if (game.getDealerHand().getScore() == game.getPlayerHand().getScore()) {
 					game.setLastResult("It's a tie! Both hands are " + game.getPlayerHand().getScore());
-					game.setIsRunning(false);
 				} else {
 					game.setLastResult("Player wins with " + game.getPlayerHand().getScore() + " against dealer's "
 							+ game.getDealerHand().getScore());
-					game.setIsRunning(false);
+					game.updateCurrentPoints(100);
 				}
+				game.setIsRunning(false);
 				return Mono.empty();
 			});
 
@@ -152,21 +150,18 @@ public class GameService {
 	}
 
 	public Mono<Game> gameClose(Mono<Game> gameMono) {
-	    return gameMono.flatMap(game -> {
-	        return playerRepository.findById(game.getPlayer().getPlayerId())
-	            .flatMap(player -> {
-	                if (game.getCurrentPoints() > player.getMaxPoints()) {
-	                    player.setMaxPoints(game.getCurrentPoints());
-	                    return playerRepository.save(player)
-	                        .thenReturn(game);
-	                }
-	                return Mono.just(game);
-	            })
-	            .flatMap(updatedGame -> {
-	                updatedGame.setIsRunning(false);
-	                return gameRepository.save(updatedGame);
-	            });
-	    });
+		return gameMono.flatMap(game -> {
+			return playerRepository.findById(game.getPlayer().getPlayerId()).flatMap(player -> {
+				if (game.getCurrentPoints() > player.getMaxPoints()) {
+					player.setMaxPoints(game.getCurrentPoints());
+					return playerRepository.save(player).thenReturn(game);
+				}
+				return Mono.just(game);
+			}).flatMap(updatedGame -> {
+				updatedGame.setIsRunning(false);
+				return gameRepository.save(updatedGame);
+			});
+		});
 	}
 
 	public Mono<Game> deleteGameById(Mono<String> gameId) {

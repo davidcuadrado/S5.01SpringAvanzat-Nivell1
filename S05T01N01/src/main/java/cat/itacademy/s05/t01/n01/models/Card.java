@@ -1,8 +1,10 @@
 package cat.itacademy.s05.t01.n01.models;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+@Schema(description = "Card entity that represents each card of the deck. ")
 @Getter
 @RequiredArgsConstructor
 public class Card {

@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Deck entity that represents de current deck of the game. ")
 public class Deck {
 	private ArrayList<Card> cards;
 

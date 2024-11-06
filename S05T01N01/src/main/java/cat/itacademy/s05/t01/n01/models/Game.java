@@ -109,6 +109,10 @@ public class Game {
 		this.currentPoints = currentPoints;
 	}
 	
+	public void updateCurrentPoints(int modCurrentPoints) {
+		this.currentPoints += modCurrentPoints;
+	}
+	
 	@Override
     public String toString() {
         return "Game ID: " + gameId + "\n" +

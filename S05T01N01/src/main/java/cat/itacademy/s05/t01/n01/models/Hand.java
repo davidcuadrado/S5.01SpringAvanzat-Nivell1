@@ -3,8 +3,10 @@ package cat.itacademy.s05.t01.n01.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import reactor.core.publisher.Mono;
 
+@Schema(description = "Hand entity that represents each player hand in the game. ")
 public class Hand {
 	private List<Card> cards;
 	private int score;
