@@ -64,22 +64,30 @@ public class GameService {
 		})).switchIfEmpty(Mono.error(new NotFoundException("Game ID: " + id + " not found."))));
 	}
 
-	public Mono<Game> startGame(Mono<Game> gameMono) {
+	private Mono<Game> startGame(Mono<Game> gameMono) {
 		return gameMono.flatMap(game -> {
 			if (game.getDeck().getCards().size() < 20) {
 				game.setNewDeck();
 			}
-			Mono<Void> playerCards = game.getPlayerHand().resetHand()
-					.then(game.getPlayerHand().addCard(game.getDeck().drawCard()))
-					.then(game.getPlayerHand().addCard(game.getDeck().drawCard()));
+			Mono<Void> playerCards = startPlayerCards(game);
 
-			Mono<Void> dealerCards = game.getDealerHand().resetHand()
-					.then(game.getDealerHand().addCard(game.getDeck().drawCard()))
-					.then(game.getDealerHand().addCard(game.getDeck().drawCard()));
+			Mono<Void> dealerCards = startDealerCards(game);
 
 			return Mono.zip(playerCards, dealerCards).then(checkForBlackjackAndSetResult(game))
 					.flatMap(gameRepository::save);
 		});
+	}
+
+	private Mono<Void> startPlayerCards(Game game) {
+		return game.getPlayerHand().resetHand()
+				.then(game.getPlayerHand().addCard(game.getDeck().drawCard()))
+				.then(game.getPlayerHand().addCard(game.getDeck().drawCard()));
+	}
+	
+	private Mono<Void> startDealerCards (Game game){
+		return game.getDealerHand().resetHand()
+				.then(game.getDealerHand().addCard(game.getDeck().drawCard()))
+				.then(game.getDealerHand().addCard(game.getDeck().drawCard()));
 	}
 
 	private Mono<Game> checkForBlackjackAndSetResult(Game game) {
@@ -108,7 +116,7 @@ public class GameService {
 		});
 	}
 
-	public Mono<Game> playerHit(Mono<Game> gameMono) {
+	private Mono<Game> playerHit(Mono<Game> gameMono) {
 		return gameMono.flatMap(game -> game.getPlayerHand().addCard(game.getDeck().drawCard()).then(Mono.defer(() -> {
 			if (game.getPlayerHand().getScore() > 21) {
 				game.setLastResult("Player busts with " + game.getPlayerHand().getScore() + "! Dealer wins the round");
@@ -119,7 +127,7 @@ public class GameService {
 		})));
 	}
 
-	public Mono<Game> playerStand(Mono<Game> gameMono) {
+	private Mono<Game> playerStand(Mono<Game> gameMono) {
 		return gameMono.flatMap(game -> {
 			while (game.getDealerHand().getScore() < 17) {
 				game.getDealerHand().addCard(game.getDeck().drawCard()).block();
@@ -149,7 +157,7 @@ public class GameService {
 		});
 	}
 
-	public Mono<Game> gameClose(Mono<Game> gameMono) {
+	private Mono<Game> gameClose(Mono<Game> gameMono) {
 		return gameMono.flatMap(game -> {
 			return playerRepository.findById(game.getPlayer().getPlayerId()).flatMap(player -> {
 				if (game.getCurrentPoints() > player.getMaxPoints()) {
