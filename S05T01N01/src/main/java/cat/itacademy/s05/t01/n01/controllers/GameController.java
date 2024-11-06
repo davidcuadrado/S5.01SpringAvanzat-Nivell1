@@ -15,7 +15,6 @@ import cat.itacademy.s05.t01.n01.exceptions.NotFoundException;
 import cat.itacademy.s05.t01.n01.models.Game;
 import cat.itacademy.s05.t01.n01.services.GameService;
 import cat.itacademy.s05.t01.n01.services.PlayerService;
-import cat.itacademy.s05.t01.n01.exceptions.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import reactor.core.publisher.Mono;
@@ -35,8 +34,7 @@ public class GameController {
 	public Mono<ResponseEntity<Game>> createNewGame(@RequestBody String newPlayer) {
 		return playerService.createNewPlayer(Mono.just(newPlayer))
 				.flatMap(player -> gameService.createNewGame(Mono.just(player))
-						.map(newGame -> ResponseEntity.status(HttpStatus.CREATED).body(newGame))
-						.onErrorMap(e -> new DatabaseException("Error saving new game. ")));
+						.map(newGame -> ResponseEntity.status(HttpStatus.CREATED).body(newGame)));
 	}
 
 	@Operation(summary = "Search for game details", description = "Retrieve an especific game details via ID from the database. ")
@@ -50,8 +48,7 @@ public class GameController {
 	@PostMapping("/{id}/play")
 	public Mono<ResponseEntity<Game>> makePlay(@PathVariable("id") String gameId, @RequestBody String playType) {
 		return gameService.nextPlayType(Mono.just(gameId), Mono.just(playType))
-				.map(game -> ResponseEntity.status(HttpStatus.OK).body(game))
-				.onErrorMap(e -> new BadRequestException("Invalid play type input. "));
+				.map(game -> ResponseEntity.status(HttpStatus.OK).body(game));
 	}
 
 	@Operation(summary = "Delete a game", description = "Delete an existing game introducing its game ID. ")

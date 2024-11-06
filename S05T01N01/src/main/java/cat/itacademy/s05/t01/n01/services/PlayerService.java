@@ -17,7 +17,7 @@ public class PlayerService {
 
 	public Mono<Player> savePlayer(Mono<Player> player) {
 		return player.flatMap(playerUpdate -> playerRepository.save(playerUpdate))
-				.onErrorMap(e -> new DatabaseException("Error saving new player. "));
+				.onErrorMap(e -> new DatabaseException("An error happend while saving the new player. Please try again. "));
 	}
 
 	public Mono<Player> createNewPlayer(Mono<String> playerName) {

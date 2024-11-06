@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import reactor.core.publisher.Mono;
 
 @Schema(description = "Game entity that represent every game created. ")
 @Document(collection = "game")
@@ -41,6 +42,11 @@ public class Game {
 
 	public Deck getDeck() {
 		return deck;
+	}
+	
+	public Mono<Void> setNewDeck() {
+		this.deck = new Deck();
+		return Mono.empty();
 	}
 
 	public Player getPlayer() {
@@ -102,5 +108,17 @@ public class Game {
 	public void setCurrentPoints(int currentPoints) {
 		this.currentPoints = currentPoints;
 	}
+	
+	public void updateCurrentPoints(int modCurrentPoints) {
+		this.currentPoints += modCurrentPoints;
+	}
+	
+	@Override
+    public String toString() {
+        return "Game ID: " + gameId + "\n" +
+               "Player: " + player + "\n" +
+               "Player Hand: " + playerHand + " [Score: " + playerHand.getScore() + "]\n" +
+               "Dealer Hand: " + dealerHand;
+    }
 
 }

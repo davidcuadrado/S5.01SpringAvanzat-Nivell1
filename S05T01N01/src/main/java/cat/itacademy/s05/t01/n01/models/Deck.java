@@ -2,7 +2,11 @@ package cat.itacademy.s05.t01.n01.models;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Deck entity that represents de current deck of the game. ")
 public class Deck {
 	private ArrayList<Card> cards;
 
@@ -29,5 +33,19 @@ public class Deck {
 
 	public Card drawCard() {
 		return cards.remove(0);
+	}
+	
+	public String toString() {
+		return cards.toString();
+	}
+	
+	public List<Card> giveNewHand() {
+	    if (cards.size() < 24) {
+	        new Deck();
+	    }
+	    List<Card> newHand = new ArrayList<>();
+	    newHand.add(drawCard());
+	    newHand.add(drawCard());
+	    return newHand;
 	}
 }
